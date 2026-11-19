@@ -171,12 +171,19 @@ and macOS minutes use it up about 10× faster. The iOS UI tests take about 15 mi
 | Screen title in tests | Navigation bar title | `screen.title` tag |
 
 ## Open questions
+
+These rules are specified but not implemented in this build yet (details in
+[`docs/screens.md`](docs/screens.md)):
+- A check-in counts as missed after **24 hours**, and the 1st-level neighbour is notified.
+- If the neighbour doesn't acknowledge in time, the alert escalates to the empanelled hospitals.
+- Family members get an update on every health change, and whenever a level misses its notification.
+
+Still open:
 1. **Scoring formula.** The formula is a placeholder; its thresholds and weights need clinical input.
-2. **Neighbour fallback.** The prototype doesn't say what happens when the countdown expires without
-   acknowledgement. Here the countdown only displays the time.
-3. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
-4. **Missed check-in timeout.** This uses 30 minutes as a placeholder.
-5. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so
+2. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
+3. **Acknowledgement deadline for a missed check-in.** Deadlines are specified only by score band,
+   and a missed check-in has no score. This uses 30 minutes as a placeholder.
+4. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so
    these return to the list without recording an outcome.
 
 ## Toolchain

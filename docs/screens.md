@@ -78,11 +78,24 @@ Chosen so the prototype's examples reproduce: Good + Pleasant = **76**, Ill + An
 - 50–69: 30 min
 - 30–49: 20 min
 - 0–29: 15 min
-- Missed check-in (no score): 30 min. This is a placeholder; see open questions.
+- Missed check-in (no score): 30 min. No acknowledgement deadline is specified for an alert without a score, so this is a placeholder; see open questions.
 
 The alert countdown counts down to `raisedAt + timeout`, shown as `mm:ss`.
 
 Escalation levels: **1** = neighbour, **2** = emergency services / hospital.
+
+**Specified rules (not yet built in either app):**
+- **Missed check-in threshold: 24 hours.** If the older adult hasn't taken the assessment for 24 hours,
+  the 1st-level neighbour is notified, exactly as for a score below 70. The alert goes to the
+  neighbour, not to the family.
+- **Unacknowledged alert.** If the neighbour doesn't acknowledge before the deadline, the alert goes to
+  the empanelled hospitals (2nd level).
+- **Family updates.** Registered family members receive an update about every change to the older
+  adult's health, including a missed check-in, and an update whenever a level misses its
+  notification (the neighbour at level 1, or no hospital responding at level 2).
+
+In this build the threshold isn't modelled (No check-in is a demo link), the countdown is
+display-only, and family see events only on the Timeline.
 
 ## Screens
 
@@ -231,7 +244,7 @@ Other event copy: "Score N" (critical if <70, else ok), "Missed check-in" (criti
 
 ## Open questions
 1. **Scoring formula.** The formula above is a placeholder, and the thresholds and weights need clinical input.
-2. **Neighbour fallback.** What happens when the countdown expires without acknowledgement? The prototype doesn't say. Here the countdown is display-only.
-3. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
-4. **Missed check-in timeout.** This uses 30 min as a placeholder.
-5. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so these go back to the list without an outcome.
+2. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
+3. **Acknowledgement deadline for a missed check-in.** The 24-hour threshold and the
+   deadlines by score band are specified, but not the deadline for an alert with no score. This uses 30 min as a placeholder.
+4. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so these go back to the list without an outcome.

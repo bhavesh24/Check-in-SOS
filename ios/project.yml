@@ -1,0 +1,100 @@
+# XcodeGen spec — run `cd ios && xcodegen generate`. The generated CheckInSOS.xcodeproj is git-ignored.
+name: CheckInSOS
+options:
+  bundleIdPrefix: uk.checkinsos
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  developmentLanguage: en-GB
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  CheckInCore:
+    path: Packages/CheckInCore
+
+targets:
+  # Presentation layer (MVVM). Depends on Domain; Data is only touched by App/AppContainer.swift.
+  CheckInSOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: CheckInSOS
+    dependencies:
+      - package: CheckInCore
+        product: Domain
+      - package: CheckInCore
+        product: Data
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: uk.checkinsos.app
+        PRODUCT_NAME: CheckInSOS
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Check-in SOS
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        TARGETED_DEVICE_FAMILY: "1"
+        ENABLE_PREVIEWS: YES
+
+  # ViewModel tests with fake repositories (Swift Testing), hosted in the app.
+  CheckInSOSTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CheckInSOSTests
+    dependencies:
+      - target: CheckInSOS
+      - package: CheckInCore
+        product: Domain
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: uk.checkinsos.app.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/CheckInSOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CheckInSOS"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  # End-to-end XCUITest flows (robots + per-role flows + accessibility audit).
+  CheckInSOSUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: CheckInSOSUITests
+    dependencies:
+      - target: CheckInSOS
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: uk.checkinsos.app.uitests
+        TEST_TARGET_NAME: CheckInSOS
+        # XCTest UI APIs are not yet annotated for Swift 6 strict concurrency.
+        SWIFT_VERSION: "5.0"
+
+schemes:
+  CheckInSOS:
+    build:
+      targets:
+        CheckInSOS: all
+        CheckInSOSTests: [test]
+        CheckInSOSUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+        - CheckInSOS
+        - package: CheckInCore/Domain
+        - package: CheckInCore/Data
+      targets:
+        - name: CheckInSOSTests
+        - name: CheckInSOSUITests
+        - package: CheckInCore/DomainTests
+        - package: CheckInCore/DataTests

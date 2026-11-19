@@ -12,6 +12,8 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 - Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
 - Text scales with Dynamic Type (iOS) / font scale (Android); no fixed-height text containers.
 - Push notifications are **simulated** by a "Simulate alert" button. 999/111 **never dials** in this build.
+- Any unexpected failure loading or saving shows "Something went wrong. Please try again." (test ID `error.message`) on the current screen.
+- Times (timeline `HH:mm`) use the device time zone; in UI-test mode they use UTC so the fixed clock gives stable values (e.g. `oa-2` "Score 38" at 06:00).
 - UI-test launch: iOS launch argument `-ui-testing`; Android test `AppContainer`. Both use fresh mock data and the fixed clock below.
 
 ## Design tokens
@@ -139,7 +141,8 @@ Escalation levels: **1** = neighbour, **2** = emergency services / hospital.
   - Middle name `editNeighbour.middleName`
   - Last name* `editNeighbour.lastName`
   - Email* `editNeighbour.email`
-  - Mobile* `editNeighbour.mobile`, with a "+44" prefix
+  - Mobile* `editNeighbour.mobile`, after a fixed "+44" prefix. The field shows the stored number without its leading "0" ("07123456789" → "7123456789"); on save a "0" is put back unless the text already starts with "0" or "+".
+- A "Done" button above the keyboard `keyboard.done` closes it (the phone pad has no return key).
 - "Save" `editNeighbour.save` runs `UpdateNeighbour`, then goes back to Current status, which shows the new name.
 - Validation errors appear in `editNeighbour.error`:
   - "First name is required"
@@ -175,7 +178,7 @@ Escalation levels: **1** = neighbour, **2** = emergency services / hospital.
 
 **Emergency sheet** (iOS action sheet / Android Material dialog)
 - Title "Alert emergency services". Message "Do you want to call".
-- "999" `emergency.call999` and "111" `emergency.call111` **do not dial**. Each shows "Demo: would call 999" (or 111) `emergency.demoMessage`, then goes to Alive.
+- "999" `emergency.call999` and "111" `emergency.call111` **do not dial**. Each closes the sheet and goes to Alive, which shows "Demo: would call 999" (or 111) in a banner `emergency.demoMessage` above the question.
 - "Cancel" `emergency.cancel` closes the sheet.
 
 **Is your neighbour alive?**

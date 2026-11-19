@@ -35,11 +35,20 @@ Rules:
   - On iOS, ViewModels are `@MainActor @Observable` and Views hold them in `@State var viewModel`.
   - On Android, ViewModels are `androidx.lifecycle.ViewModel` subclasses exposing `StateFlow<UiState>`, collected with `collectAsStateWithLifecycle()`.
   - Views only render state and forward intents.
+  - ViewModels never touch navigation. They report outcomes through closures (`onSubmitted`, `onAlert`, …), and the router maps those onto the path.
+    - iOS: `AppRouter` (`[Route]` path) + `RootView` in `App/AppRouter.swift`; `AppContainer.make…` factories build every ViewModel.
+  - Shared presentation types live in `Features/Shared` (`AlertSummary`, `FlowSteps`, `DisplayText`). The neighbour and hospital alerts share one `HelpAlert` screen, and the five hospital questions are one table-driven `CareStep` screen.
+  - iOS: `#Preview`s go only in `CheckInSOS/Previews/` (excluded from coverage). Back is a custom toolbar button (`withBackButton()`, ID `nav.back`), and the edge-swipe gesture is kept.
 - **DI:** a manual composition root (`AppContainer`) wires everything through constructor injection; there's no DI framework.
   - Test mode uses fresh mock data and `FixedTimeProvider(fixedNow)`. On iOS that's the `-ui-testing` launch argument; on Android it's a test `AppContainer`.
 - **UI conventions:** every interactive element gets the test ID listed in `docs/screens.md`, via `accessibilityIdentifier` on iOS and `Modifier.testTag` on Android.
   - UI tests use robot (page-object) helpers.
   - The 999/111 buttons must **never** dial; they show "Demo: would call 999" instead.
+  - iOS XCUITest gotchas, all handled in `CheckInSOSUITests/Robots/Robot.swift`:
+    - Choices hidden under the pinned action bar must be scrolled clear first (`tapAboveBar`).
+    - On iOS 26+, `confirmationDialog` is a popover with no Cancel button; dismiss it by tapping `PopoverDismissRegion`.
+    - The audit fails contrast for content scrolled under the glass navigation bar, so `audit()` scrolls to the top first.
+    - Text in rows must wrap (`fixedSize(horizontal: false, vertical: true)`, vertical-axis `TextField`), or the audit reports "Text clipped".
 
 ## Commands
 Android (use Android Studio's JBR; CI uses Temurin 17):
@@ -54,10 +63,16 @@ cd ios/Packages/CheckInCore && swift test                      # fast local loop
 xcodebuild test -scheme CheckInCore-Package -destination 'platform=macOS' \
   -enableCodeCoverage YES -resultBundlePath ../../build/CoreTests.xcresult
 cd ../../.. && python3 scripts/check_ios_coverage.py ios/build/CoreTests.xcresult 80
-# phase 2: cd ios && xcodegen generate; unit run (-skip-testing:CheckInSOSUITests) → build/UnitTests.xcresult;
-#          UI run (-only-testing:CheckInSOSUITests) → build/UITests.xcresult;
-#          python3 scripts/check_ios_coverage.py ios/build/UITests.xcresult 80 --scope presentation;
-#          xcrun xcresulttool merge both → build/All.xcresult; check_ios_coverage.py ios/build/All.xcresult 80
+# App (scheme CheckInSOS also runs the CheckInCore package tests). Local simulator: iPhone 17, iOS 27.0.
+cd ios && xcodegen generate
+D='platform=iOS Simulator,name=iPhone 17,OS=27.0'
+xcodebuild test -project CheckInSOS.xcodeproj -scheme CheckInSOS -destination "$D" -derivedDataPath build/DerivedData \
+  -skip-testing:CheckInSOSUITests -enableCodeCoverage YES -resultBundlePath build/UnitTests.xcresult CODE_SIGNING_ALLOWED=NO
+xcodebuild test -project CheckInSOS.xcodeproj -scheme CheckInSOS -destination "$D" -derivedDataPath build/DerivedData \
+  -only-testing:CheckInSOSUITests -enableCodeCoverage YES -resultBundlePath build/UITests.xcresult CODE_SIGNING_ALLOWED=NO
+xcrun xcresulttool merge build/UnitTests.xcresult build/UITests.xcresult --output-path build/All.xcresult
+cd .. && python3 scripts/check_ios_coverage.py ios/build/UITests.xcresult 80 --scope presentation
+python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
 ```
 
 ## Coverage gates (never lower 80% silently)
@@ -73,14 +88,15 @@ cd ../../.. && python3 scripts/check_ios_coverage.py ios/build/CoreTests.xcresul
   - `#Preview` / `@Preview`.
   - Test fakes.
   - Every addition must be documented in the README.
-- Current status: iOS core 100%, Android domain+data 98.9%.
+- Current status: iOS overall 99.1% and UI-only presentation 98.7%; Android domain+data 98.9%.
+- iOS test counts: 36 ViewModel tests, 26 domain, 6 data, and 23 XCUITests (4 of them run `performAccessibilityAudit()`).
 
 ## Status
 - [x] **Phase 1, foundation:**
   - git, `.gitignore`, this file, `docs/screens.md`.
   - The iOS `CheckInCore` and Android `:domain`/`:data` modules, with tests.
   - CI (`.github/workflows/ios.yml`, `android.yml`) running unit tests plus the overall gate.
-- [ ] **Phase 2, iOS app:**
+- [x] **Phase 2, iOS app:**
   - `ios/project.yml` (XcodeGen; app, unit-test and UI-test targets; local package).
   - `AppContainer`, `AppRouter`, the design system, and every screen.
   - ViewModel tests, XCUITest robots and flows, `performAccessibilityAudit()`.

@@ -94,7 +94,7 @@ def main(argv: list[str]) -> int:
         print(f"{pct:6.1f}%  {c:5d}/{e:<5d}  {path.split('/Sources/')[-1].split('/CheckInSOS/')[-1]}")
     percent = 100.0 * covered / executable
     status = "PASS" if percent >= args.minimum else "FAIL"
-    print(f"\n{status}: {args.scope} line coverage {percent:.2f}% ({covered}/{executable}), minimum {args.minimum:.0f}%")
+    print(f"\n{status}: {args.scope} line coverage {percent:.2f}% ({covered}/{executable}), minimum {args.minimum:g}%")
     return 0 if percent >= args.minimum else 1
 
 

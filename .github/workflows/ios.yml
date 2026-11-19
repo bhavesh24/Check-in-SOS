@@ -13,29 +13,57 @@ concurrency:
 jobs:
   build-test:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ios
     steps:
       - uses: actions/checkout@v4
 
-      # Phase 1: CheckInCore (Domain + Data) only. Phases 2+ add:
-      #   brew install xcodegen && (cd ios && xcodegen generate)
-      #   unit tests (-skip-testing:CheckInSOSUITests) → build/UnitTests.xcresult
-      #   UI tests (-only-testing:CheckInSOSUITests) → build/UITests.xcresult + presentation gate
-      #   xcresulttool merge → build/All.xcresult + overall gate
-      - name: Test CheckInCore with coverage
+      - name: Fast package tests (macOS)
         working-directory: ios/Packages/CheckInCore
+        run: swift test
+
+      - name: Generate Xcode project
         run: |
-          xcodebuild test \
-            -scheme CheckInCore-Package \
-            -destination 'platform=macOS' \
-            -enableCodeCoverage YES \
-            -resultBundlePath ../../build/CoreTests.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+          brew install xcodegen
+          xcodegen generate
 
-      - name: Overall coverage gate (>= 80% lines)
-        run: python3 scripts/check_ios_coverage.py ios/build/CoreTests.xcresult 80
+      # Newest available iPhone simulator on the runner image.
+      - name: Pick simulator
+        run: |
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          runtimes = json.load(sys.stdin)["devices"]
+          ios = sorted((k for k in runtimes if "iOS" in k), key=lambda k: [int(p) for p in k.rsplit("iOS-", 1)[1].split("-")])
+          phones = [d for d in runtimes[ios[-1]] if d["name"].startswith("iPhone")]
+          print(phones[0]["udid"])')
+          echo "DESTINATION=platform=iOS Simulator,id=$UDID" >> "$GITHUB_ENV"
 
-      - name: Upload result bundle
+      - name: Unit tests (ViewModels + CheckInCore) with coverage
+        run: |
+          xcodebuild test -project CheckInSOS.xcodeproj -scheme CheckInSOS \
+            -destination "$DESTINATION" -derivedDataPath build/DerivedData \
+            -skip-testing:CheckInSOSUITests -enableCodeCoverage YES \
+            -resultBundlePath build/UnitTests.xcresult CODE_SIGNING_ALLOWED=NO
+
+      - name: UI tests (XCUITest flows + accessibility audit) with coverage
+        run: |
+          xcodebuild test -project CheckInSOS.xcodeproj -scheme CheckInSOS \
+            -destination "$DESTINATION" -derivedDataPath build/DerivedData \
+            -only-testing:CheckInSOSUITests -enableCodeCoverage YES \
+            -resultBundlePath build/UITests.xcresult CODE_SIGNING_ALLOWED=NO
+
+      - name: UI-test coverage gate (presentation layer >= 80% lines)
+        working-directory: .
+        run: python3 scripts/check_ios_coverage.py ios/build/UITests.xcresult 80 --scope presentation
+
+      - name: Overall coverage gate (all layers >= 80% lines)
+        run: |
+          xcrun xcresulttool merge build/UnitTests.xcresult build/UITests.xcresult --output-path build/All.xcresult
+          cd .. && python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
+
+      - name: Upload result bundles
         if: always()
         uses: actions/upload-artifact@v4
         with:

@@ -1,0 +1,43 @@
+name: Android
+
+on:
+  push:
+    paths: ["android/**", ".github/workflows/android.yml"]
+  pull_request:
+    paths: ["android/**", ".github/workflows/android.yml"]
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Phase 1: :domain + :data. Phase 3 adds `lint assembleDebug` here and a `ui-tests`
+      # emulator job (connectedDebugAndroidTest + JaCoCo uiCoverageVerify).
+      - name: Unit tests + overall coverage gate (>= 80% lines)
+        run: ./gradlew test koverVerify koverHtmlReport
+
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-reports
+          path: |
+            android/**/build/reports/tests/
+            android/build/reports/kover/
+          if-no-files-found: ignore

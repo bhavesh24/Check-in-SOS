@@ -27,6 +27,8 @@ struct FlowScreen<Content: View, Actions: View>: View {
                 VStack(spacing: 12) { actions }
                     .padding(Theme.spacing)
                     .background(Theme.background)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("actionBar")
             }
         }
         .background(Theme.background)

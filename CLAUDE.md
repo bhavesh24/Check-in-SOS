@@ -53,7 +53,7 @@ Rules:
     - Choices hidden under the pinned action bar must be scrolled clear first (`tapAboveBar`).
     - On iOS 26+, `confirmationDialog` is a popover with no Cancel button; dismiss it by tapping `PopoverDismissRegion`.
     - The audit fails contrast for content scrolled under the glass navigation bar, so `audit()` scrolls to the top first.
-    - Landscape (`LandscapeTests`): the short height cuts choices in half under the opaque pinned bar, and the audit flags that as contrast; pass `audit(barId:)` to ignore only that case.
+    - Landscape (`LandscapeTests`): the short height cuts choices in half under the opaque pinned bar, and the audit flags that as contrast; `audit(ignoringCutByBar: true)` ignores only elements crossing the top edge of `actionBar` (the bar container), so the bar's own buttons are still audited.
     - Text in rows must wrap (`fixedSize(horizontal: false, vertical: true)`, vertical-axis `TextField`), or the audit reports "Text clipped".
 
 ## Commands

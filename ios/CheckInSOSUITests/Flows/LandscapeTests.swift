@@ -5,7 +5,7 @@ import XCTest
 final class LandscapeTests: UITestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
-        XCUIDevice.shared.orientation = .landscapeLeft
+        rotate(to: .landscapeLeft)
     }
 
     override func tearDownWithError() throws {
@@ -16,21 +16,32 @@ final class LandscapeTests: UITestCase {
     func testOlderAdultInLandscape() {
         home.audit()
         let robot = home.chooseOlderAdult().assertAssessmentShown().answer(physical: "ill", mood: "anxious")
-        robot.audit(barId: "assessment.submit")
-        robot.submit().assertScore(38, neighbourNotified: true).audit()
+        robot.audit(ignoringCutByBar: true)
+        robot.submit().assertScore(38, neighbourNotified: true).audit(ignoringCutByBar: true)
     }
 
     func testNeighbourInLandscape() {
         let robot = home.chooseNeighbour().assertListShown()
-        robot.simulateAlert().audit()
-        robot.accept().confirmReached().audit()
+        robot.simulateAlert().audit(ignoringCutByBar: true)
+        robot.accept().confirmReached().audit(ignoringCutByBar: true)
     }
 
     func testRotatingKeepsState() {
         let robot = home.chooseOlderAdult().answer(physical: "ill", mood: "anxious")
-        XCUIDevice.shared.orientation = .portrait
+        rotate(to: .portrait)
         XCTAssertTrue(robot.element("assessment.physical.ill").isSelected)
         XCTAssertTrue(robot.element("assessment.mood.anxious").isSelected)
         robot.submit().assertScore(38, neighbourNotified: true)
+    }
+
+    /// Rotates and waits until the window has re-laid out in the new orientation.
+    private func rotate(to orientation: UIDeviceOrientation) {
+        XCUIDevice.shared.orientation = orientation
+        let window = app.windows.firstMatch
+        let laidOut = expectation(for: NSPredicate { _, _ in
+            let size = window.frame.size
+            return orientation.isLandscape ? size.width > size.height : size.height > size.width
+        }, evaluatedWith: nil)
+        wait(for: [laidOut], timeout: 5)
     }
 }

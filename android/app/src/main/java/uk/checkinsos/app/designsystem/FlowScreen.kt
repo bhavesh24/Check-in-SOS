@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
@@ -96,12 +97,19 @@ fun FlowScreen(
 
 /** Large body copy used for the help-flow messages and questions. */
 @Composable
-fun MessageText(text: String, modifier: Modifier = Modifier, testTag: String? = null, isHeading: Boolean = false) {
+fun MessageText(
+    text: String,
+    modifier: Modifier = Modifier,
+    testTag: String? = null,
+    isHeading: Boolean = false,
+    textAlign: TextAlign? = null,
+) {
     Text(
         text,
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.SemiBold,
         color = AppTheme.colors.text,
+        textAlign = textAlign,
         modifier = modifier
             .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
             .then(if (isHeading) Modifier.semantics { heading() } else Modifier),

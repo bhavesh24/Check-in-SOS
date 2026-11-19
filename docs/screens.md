@@ -8,6 +8,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 
 ## Global rules
 - Every screen except Home has a back control (iOS nav-bar back, Android top-app-bar up + system back). Test ID `nav.back`.
+- Answer buttons: "Yes" (or the "Yes, …" choice) is the filled primary button, and other answers are outlined. Answers keep the order listed per screen.
 - Platform-only test IDs: `screen.title` is the Android top-app-bar title (iOS tests read the navigation bar), and `keyboard.done` is the iOS keyboard toolbar button (Android uses the IME action).
 - Multi-step flows show a step indicator "Step N of M" (test ID `stepProgress`). Step counts are listed per flow below.
 - Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
@@ -145,7 +146,7 @@ Escalation levels: **1** = neighbour, **2** = emergency services / hospital.
   - Mobile* `editNeighbour.mobile`, after a fixed "+44" prefix. The field shows the stored number without its leading "0" ("07123456789" → "7123456789"); on save a "0" is put back unless the text already starts with "0" or "+".
 - A "Done" button above the keyboard `keyboard.done` closes it (the phone pad has no return key).
 - "Save" `editNeighbour.save` runs `UpdateNeighbour`, then goes back to Current status, which shows the new name.
-- Validation errors appear in `editNeighbour.error`:
+- Validation errors appear in `editNeighbour.error`, under the heading and above the fields so they stay visible while the keyboard is open:
   - "First name is required"
   - "Last name is required"
   - "Enter a valid email"

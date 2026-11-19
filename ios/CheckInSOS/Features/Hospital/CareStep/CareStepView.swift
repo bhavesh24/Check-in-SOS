@@ -10,9 +10,9 @@ struct CareStepView: View {
             MessageText(viewModel.step.heading)
                 .accessibilityAddTraits(.isHeader)
         } actions: {
-            ForEach(Array(viewModel.step.answers.enumerated()), id: \.element) { index, answer in
+            ForEach(viewModel.step.answers, id: \.self) { answer in
                 Button(answer.title) { Task { await viewModel.choose(answer) } }
-                    .buttonStyle(AnswerButtonStyle(isLast: index == viewModel.step.answers.count - 1))
+                    .buttonStyle(AnswerButtonStyle(isPrimary: answer.title == "Yes"))
                     .disabled(viewModel.isBusy)
                     .accessibilityIdentifier(answer.testID)
             }
@@ -22,13 +22,13 @@ struct CareStepView: View {
     }
 }
 
-/// The last answer is the filled primary button; earlier ones are outlined (like No / Yes on the prototype).
+/// "Yes" is the filled primary button, as on Escalate and Alive; other answers are outlined.
 private struct AnswerButtonStyle: ButtonStyle {
-    let isLast: Bool
+    let isPrimary: Bool
 
     @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        if isLast {
+        if isPrimary {
             PrimaryButtonStyle().makeBody(configuration: configuration)
         } else {
             SecondaryButtonStyle().makeBody(configuration: configuration)

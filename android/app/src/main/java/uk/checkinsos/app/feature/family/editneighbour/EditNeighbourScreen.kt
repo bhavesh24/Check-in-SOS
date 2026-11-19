@@ -58,6 +58,8 @@ fun EditNeighbourContent(state: EditNeighbourUiState, onBack: () -> Unit, action
             state.heading, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text, modifier = Modifier.semantics { heading() },
         )
+        // Above the fields so it stays visible while the keyboard is open.
+        state.errorMessage?.let { ErrorBanner(it, testTag = "editNeighbour.error") }
         Field("First name*", state.firstName, "editNeighbour.firstName", actions.onFirstName)
         Field("Middle name", state.middleName, "editNeighbour.middleName", actions.onMiddleName)
         Field("Last name*", state.lastName, "editNeighbour.lastName", actions.onLastName)
@@ -66,7 +68,6 @@ fun EditNeighbourContent(state: EditNeighbourUiState, onBack: () -> Unit, action
             "Mobile*", state.mobile, "editNeighbour.mobile", actions.onMobile, KeyboardType.Phone,
             prefix = state.mobilePrefix, imeAction = ImeAction.Done,
         )
-        state.errorMessage?.let { ErrorBanner(it, testTag = "editNeighbour.error") }
     }
 }
 

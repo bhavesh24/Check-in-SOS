@@ -97,8 +97,8 @@ python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
   - `AppContainer`.
   - `#Preview` / `@Preview` (plus the `Previews/` folder on iOS and the `uk.checkinsos.app.previews` package on Android).
   - Test fakes.
-  - Every addition must be documented in the README.
-- Current status: iOS overall 99.1% and UI-only presentation 98.7%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
+  - Every addition must be documented in the README ("Coverage exclusions" table).
+- Current status: iOS overall 99.4% and UI-only presentation 98.7%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
 - Android test counts: 34 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), plus the domain and data tests.
 - iOS test counts: 36 ViewModel tests, 26 domain, 6 data, and 23 XCUITests (4 of them run `performAccessibilityAudit()`).
 
@@ -116,7 +116,7 @@ python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
   - `:app` module (AGP 9 built-in Kotlin plus the `kotlin-compose` plugin; minSdk 26, compile/target 36).
   - Screens, ViewModel tests, Robolectric screen tests, and `androidTest` flows with ATF checks.
   - JaCoCo UI gate and the `ui-tests` CI job.
-- [ ] **Phase 4, hardening:** coverage exclusions, README, and an end-to-end walkthrough on both platforms.
+- [x] **Phase 4, hardening:** coverage exclusions, README, and an end-to-end walkthrough on both platforms.
 
 ## Toolchain (pinned)
 - Gradle 9.4.0 (wrapper), AGP 9.0.1 (built-in Kotlin), Kotlin 2.3.20, Kover 0.9.9, coroutines 1.10.2, JUnit 4 + kotlin-test. Versions live in `android/gradle/libs.versions.toml`.

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uk.checkinsos.app.designsystem.FlowScreen
@@ -35,6 +36,7 @@ fun ScoreContent(state: ScoreUiState, onBack: () -> Unit, onDone: () -> Unit) {
                 state.notificationText,
                 Modifier.fillMaxWidth(),
                 testTag = "score.neighbourNotified",
+                textAlign = TextAlign.Center,
             )
         }
     }

@@ -10,6 +10,10 @@ struct EditNeighbourView: View {
                 .font(.title2.weight(.bold))
                 .foregroundStyle(Theme.text)
                 .accessibilityAddTraits(.isHeader)
+            // Above the fields so it stays visible while the keyboard is open.
+            if let error = viewModel.errorMessage {
+                ErrorBanner(message: error, testID: "editNeighbour.error")
+            }
             field("First name*", text: $viewModel.firstName, id: "editNeighbour.firstName")
             field("Middle name", text: $viewModel.middleName, id: "editNeighbour.middleName")
             field("Last name*", text: $viewModel.lastName, id: "editNeighbour.lastName")
@@ -29,9 +33,6 @@ struct EditNeighbourView: View {
                     input("Mobile", text: $viewModel.mobile, id: "editNeighbour.mobile")
                         .keyboardType(.phonePad)
                 }
-            }
-            if let error = viewModel.errorMessage {
-                ErrorBanner(message: error, testID: "editNeighbour.error")
             }
         } actions: {
             Button("Save") { Task { await viewModel.save() } }

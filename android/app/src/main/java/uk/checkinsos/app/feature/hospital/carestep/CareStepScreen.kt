@@ -28,9 +28,9 @@ fun CareStepContent(state: CareStepUiState, onBack: () -> Unit, onChoose: (CareS
         totalSteps = state.totalSteps,
         errorMessage = state.errorMessage,
         actions = {
-            // The last answer is the filled primary button; earlier ones are outlined (No / Yes on the prototype).
-            answers.forEachIndexed { index, answer ->
-                if (index == answers.lastIndex) {
+            // "Yes" is the filled primary button, as on Escalate and Alive; other answers are outlined.
+            answers.forEach { answer ->
+                if (answer.title == "Yes") {
                     PrimaryButton(answer.title, answer.testTag, onClick = { onChoose(answer) }, enabled = !state.isBusy)
                 } else {
                     SecondaryButton(answer.title, answer.testTag, onClick = { onChoose(answer) }, enabled = !state.isBusy)

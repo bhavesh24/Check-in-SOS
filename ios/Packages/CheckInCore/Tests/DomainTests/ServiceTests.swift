@@ -35,7 +35,7 @@ import Testing
 
     @Test func missedCheckInUsesPlaceholderTimeout() {
         let timeout = EscalationPolicy.acknowledgementTimeout(forScore: nil)
-        #expect(timeout == 1800)
+        #expect(timeout == 900)
     }
 }
 

@@ -23,7 +23,7 @@ Rules:
   - Repositories and use cases are `async throws` on iOS and `suspend` on Android.
 - **Domain services:**
   - `ScoreCalculator`: a **placeholder** formula (Good+Pleasant = 76, Ill+Anxious = 38; ≥70 is good).
-  - `EscalationPolicy`: 50–69 → 30 min, 30–49 → 20 min, 0–29 → 15 min, missed check-in → 30 min (placeholder).
+  - `EscalationPolicy`: 50–69 → 30 min, 30–49 → 20 min, 0–29 → 15 min, missed check-in → 15 min (placeholder).
   - `NeighbourValidator`
   - `TimeProvider`: an injectable clock. On iOS it isn't called `Clock`, which would clash with Swift's protocol.
 - **Errors:** `DomainError` (Swift) and `DomainException` (Kotlin), each with `notFound`, `noAlertSubject` and `invalidNeighbour(NeighbourValidationError)`.

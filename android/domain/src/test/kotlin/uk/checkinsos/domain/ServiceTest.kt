@@ -54,7 +54,7 @@ class EscalationPolicyTest {
     }
 
     @Test fun missedCheckInUsesPlaceholderTimeout() {
-        assertEquals(Duration.ofMinutes(30), EscalationPolicy.acknowledgementTimeout(null))
+        assertEquals(Duration.ofMinutes(15), EscalationPolicy.acknowledgementTimeout(null))
     }
 }
 

@@ -3,7 +3,7 @@ import Foundation
 /// How long a recipient has to acknowledge an alert, by score.
 public enum EscalationPolicy {
     /// Placeholder: no timeout is specified for a missed check-in.
-    public static let missedCheckInTimeout: TimeInterval = 30 * 60
+    public static let missedCheckInTimeout: TimeInterval = 15 * 60
 
     /// True if a score should alert the 1st-level neighbour.
     public static func shouldAlert(score: Int) -> Bool { !ScoreCalculator.isGood(score) }

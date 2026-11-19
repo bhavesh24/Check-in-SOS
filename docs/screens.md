@@ -78,7 +78,7 @@ Chosen so the prototype's examples reproduce: Good + Pleasant = **76**, Ill + An
 - 50–69: 30 min
 - 30–49: 20 min
 - 0–29: 15 min
-- Missed check-in (no score): 30 min. No acknowledgement deadline is specified for an alert without a score, so this is a placeholder; see open questions.
+- Missed check-in (no score): 15 min. No acknowledgement deadline is specified for an alert without a score, so this is a placeholder; see open questions.
 
 The alert countdown counts down to `raisedAt + timeout`, shown as `mm:ss`.
 
@@ -246,5 +246,5 @@ Other event copy: "Score N" (critical if <70, else ok), "Missed check-in" (criti
 1. **Scoring formula.** The formula above is a placeholder, and the thresholds and weights need clinical input.
 2. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
 3. **Acknowledgement deadline for a missed check-in.** The 24-hour threshold and the
-   deadlines by score band are specified, but not the deadline for an alert with no score. This uses 30 min as a placeholder.
+   deadlines by score band are specified, but not the deadline for an alert with no score. This uses 15 min as a placeholder.
 4. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so these go back to the list without an outcome.

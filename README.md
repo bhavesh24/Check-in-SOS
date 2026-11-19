@@ -182,7 +182,7 @@ Still open:
 1. **Scoring formula.** The formula is a placeholder; its thresholds and weights need clinical input.
 2. **Death-notification consent.** Who may see "Reported deceased", and how is the family told?
 3. **Acknowledgement deadline for a missed check-in.** Deadlines are specified only by score band,
-   and a missed check-in has no score. This uses 30 minutes as a placeholder.
+   and a missed check-in has no score. This uses 15 minutes as a placeholder.
 4. **"Not in bad condition" / "not yet recovered".** The prototype doesn't say what to record, so
    these return to the list without recording an outcome.
 

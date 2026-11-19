@@ -3,21 +3,31 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kover)
 }
 
 dependencies {
     kover(project(":domain"))
     kover(project(":data"))
-    // Phase 3: kover(project(":app"))
+    kover(project(":app"))
 }
 
 kover {
+    // Merged JVM (:domain, :data) + Android debug (:app) coverage. `koverVerify` / `koverHtmlReport`
+    // below delegate to this variant so the documented commands measure every layer.
+    currentProject { createVariant("all") {} }
     reports {
         filters {
             excludes {
                 // Composition root / entry point / previews (see CLAUDE.md "Coverage gates").
-                classes("uk.checkinsos.app.MainActivity*", "uk.checkinsos.app.AppContainer*")
+                // Keep in sync with app/build.gradle.kts (uiCoverageVerify) and the README.
+                classes(
+                    "uk.checkinsos.app.MainActivity*",
+                    "uk.checkinsos.app.AppContainer*",
+                    "uk.checkinsos.app.previews.*",
+                    "*ComposableSingletons*",
+                )
                 annotatedBy("androidx.compose.ui.tooling.preview.Preview")
             }
         }
@@ -28,3 +38,7 @@ kover {
         }
     }
 }
+
+tasks.named("koverVerify") { dependsOn("koverVerifyAll") }
+tasks.named("koverHtmlReport") { dependsOn("koverHtmlReportAll") }
+tasks.named("koverLog") { dependsOn("koverLogAll") }

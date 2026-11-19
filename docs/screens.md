@@ -8,6 +8,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 
 ## Global rules
 - Every screen except Home has a back control (iOS nav-bar back, Android top-app-bar up + system back). Test ID `nav.back`.
+- Platform-only test IDs: `screen.title` is the Android top-app-bar title (iOS tests read the navigation bar), and `keyboard.done` is the iOS keyboard toolbar button (Android uses the IME action).
 - Multi-step flows show a step indicator "Step N of M" (test ID `stepProgress`). Step counts are listed per flow below.
 - Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
 - Text scales with Dynamic Type (iOS) / font scale (Android); no fixed-height text containers.

@@ -17,3 +17,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 }
+
+// Contributes to the root "all" coverage variant (JVM + Android debug), see the root build file.
+kover { currentProject { createVariant("all") { add("jvm") } } }

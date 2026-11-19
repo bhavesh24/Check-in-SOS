@@ -16,5 +16,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "CheckInSOS"
 
-// Clean Architecture modules. :app (Presentation, Compose) is added in phase 3.
-include(":domain", ":data")
+// Clean Architecture modules: :domain (pure Kotlin), :data (mock store), :app (Presentation, Compose).
+include(":domain", ":data", ":app")

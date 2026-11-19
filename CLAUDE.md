@@ -53,6 +53,7 @@ Rules:
     - Choices hidden under the pinned action bar must be scrolled clear first (`tapAboveBar`).
     - On iOS 26+, `confirmationDialog` is a popover with no Cancel button; dismiss it by tapping `PopoverDismissRegion`.
     - The audit fails contrast for content scrolled under the glass navigation bar, so `audit()` scrolls to the top first.
+    - Landscape (`LandscapeTests`): the short height cuts choices in half under the opaque pinned bar, and the audit flags that as contrast; pass `audit(barId:)` to ignore only that case.
     - Text in rows must wrap (`fixedSize(horizontal: false, vertical: true)`, vertical-axis `TextField`), or the audit reports "Text clipped".
 
 ## Commands
@@ -99,8 +100,8 @@ python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
   - Test fakes.
   - Every addition must be documented in the README ("Coverage exclusions" table).
 - Current status: iOS overall 99.4% and UI-only presentation 98.7%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
-- Android test counts: 34 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), plus the domain and data tests.
-- iOS test counts: 36 ViewModel tests, 26 domain, 6 data, and 23 XCUITests (4 of them run `performAccessibilityAudit()`).
+- Android test counts: 34 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), 3 JVM-only landscape/rotation tests, plus the domain and data tests.
+- iOS test counts: 36 ViewModel tests, 26 domain, 6 data, and 26 XCUITests (6 of them run `performAccessibilityAudit()`, 3 run in landscape).
 
 ## Status
 - [x] **Phase 1, foundation:**

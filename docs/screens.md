@@ -13,6 +13,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 - Multi-step flows show a step indicator "Step N of M" (test ID `stepProgress`). Step counts are listed per flow below.
 - Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
 - Text scales with Dynamic Type (iOS) / font scale (Android); no fixed-height text containers.
+- Orientation: both apps support portrait and landscape (left/right; iPhone excludes upside-down). At short landscape heights content scrolls under the pinned action bar rather than clipping.
 - Push notifications are **simulated** by a "Simulate alert" button. 999/111 **never dials** in this build.
 - Any unexpected failure loading or saving shows "Something went wrong. Please try again." (test ID `error.message`) on the current screen.
 - Times (timeline `HH:mm`) use the device time zone; in UI-test mode they use UTC so the fixed clock gives stable values (e.g. `oa-2` "Score 38" at 06:00).

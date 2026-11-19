@@ -79,7 +79,9 @@ class Robot {
     }
 
     /// Fails the test on any accessibility issue (contrast, hit size, Dynamic Type clipping, missing labels).
-    func audit(file: StaticString = #filePath, line: UInt = #line) {
+    /// Pass `barId` (the pinned action bar's top button) on short landscape screens: an element cut in half by
+    /// the opaque bar is sampled against the bar's pixels, so only that false contrast hit is ignored.
+    func audit(barId: String? = nil, file: StaticString = #filePath, line: UInt = #line) {
         // Content scrolled under the translucent navigation bar would fail contrast, so audit from the top.
         let scrollView = app.scrollViews.firstMatch
         if scrollView.exists {
@@ -87,7 +89,11 @@ class Robot {
             scrollView.swipeDown(velocity: .fast)
         }
         do {
-            try app.performAccessibilityAudit()
+            try app.performAccessibilityAudit { [self] issue in
+                guard let barId, issue.auditType == .contrast, let issueElement = issue.element else { return false }
+                let bar = element(barId)
+                return bar.exists && issueElement.frame.maxY > bar.frame.minY
+            }
         } catch {
             XCTFail("Accessibility audit failed: \(error)", file: file, line: line)
         }

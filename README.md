@@ -111,6 +111,7 @@ Every interactive element has the test ID listed in `docs/screens.md`. UI tests 
 | Screen tests from a fixed UI state | (covered by the UI tests) | Robolectric `ScreenContentTest` |
 | End-to-end flows per role, back navigation, step progress | XCUITest (`CheckInSOSUITests`) | `sharedTest` flows on Robolectric **and** the emulator |
 | Accessibility | `performAccessibilityAudit()` on every role's main screens | Accessibility Test Framework checks on every emulator action |
+| Landscape (portrait + landscape left/right supported) | `LandscapeTests`: flows and audits in landscape, rotation keeps state | Robolectric `LandscapeFlowTest` + `RotationTest` (JVM only) |
 
 Two **80% line-coverage gates** run on each platform. Neither threshold may be lowered silently.
 

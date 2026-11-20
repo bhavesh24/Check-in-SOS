@@ -40,9 +40,9 @@ Older adults (family "loved ones" and neighbour "neighbours" lists both show the
 
 | id | Name | Latest score | 1st-level neighbour (first / middle / last / email / mobile) |
 |---|---|---|---|
-| `oa-1` | Margaret Wilson | 76 | Alex / — / Brown / alex.brown@example.com / 07123456789 |
-| `oa-2` | Arthur Patel | 38 | Priya / — / Shah / priya.shah@example.com / 07234567890 |
-| `oa-3` | Edith Clarke | — (none yet) | Tom / J / Hughes / tom.hughes@example.com / 07345678901 |
+| `oa-1` | Margaret Wilson | 76 | Alex / — / Brown / alex.brown@example.com / 07700900123 |
+| `oa-2` | Arthur Patel | 38 | Priya / — / Shah / priya.shah@example.com / 07700900456 |
+| `oa-3` | Edith Clarke | — (none yet) | Tom / J / Hughes / tom.hughes@example.com / 07700900789 |
 
 Hospital patients (in this order): `p-1` Arthur Patel (→ `oa-2`), `p-2` Edith Clarke (→ `oa-3`), `p-3` Margaret Wilson (→ `oa-1`).
 
@@ -157,7 +157,7 @@ display-only, and family see events only on the Timeline.
   - Middle name `editNeighbour.middleName`
   - Last name* `editNeighbour.lastName`
   - Email* `editNeighbour.email`
-  - Mobile* `editNeighbour.mobile`, after a fixed "+44" prefix. The field shows the stored number without its leading "0" ("07123456789" → "7123456789"); on save a "0" is put back unless the text already starts with "0" or "+".
+  - Mobile* `editNeighbour.mobile`, after a fixed "+44" prefix. The field shows the stored number without its leading "0" ("07700900123" → "7700900123"); on save a "0" is put back unless the text already starts with "0" or "+".
 - A "Done" button above the keyboard `keyboard.done` closes it (the phone pad has no return key).
 - "Save" `editNeighbour.save` runs `UpdateNeighbour`, then goes back to Current status, which shows the new name.
 - Validation errors appear in `editNeighbour.error`, under the heading and above the fields so they stay visible while the keyboard is open:

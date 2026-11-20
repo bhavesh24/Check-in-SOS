@@ -15,7 +15,7 @@ final class FamilyFlowTests: UITestCase {
             .assertField("firstName", "Alex")
             .assertField("lastName", "Brown")
             .assertField("email", "alex.brown@example.com")
-            .assertField("mobile", "7123456789")
+            .assertField("mobile", "7700900123")
             .replace("firstName", with: "Sam")
             .save()
             .assertStatus(scoreLabel: "Score 76 out of 100", neighbour: "Sam Brown")

@@ -5,7 +5,7 @@ let t0 = Date(timeIntervalSince1970: 1_768_467_600)
 
 func adult(_ id: String, _ name: String, score: Int?) -> OlderAdult {
     OlderAdult(id: id, name: name, latestScore: score,
-               neighbour: Neighbour(firstName: "N", lastName: id, email: "n@x.io", mobile: "07123456789"))
+               neighbour: Neighbour(firstName: "N", lastName: id, email: "n@example.com", mobile: "07700900123"))
 }
 
 /// One in-memory fake that implements every repository protocol (test-only, excluded from coverage).

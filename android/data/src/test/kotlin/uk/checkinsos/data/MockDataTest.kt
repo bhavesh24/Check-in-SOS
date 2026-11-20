@@ -57,7 +57,7 @@ class MockDataTest {
     @Test fun updatesScoreAndNeighbour() = runTest {
         adults.recordScore("oa-3", 55)
         val updated = adults.updateNeighbour(
-            "oa-3", Neighbour(firstName = "Sam", lastName = "Lee", email = "sam@lee.uk", mobile = "07999999999"),
+            "oa-3", Neighbour(firstName = "Sam", lastName = "Lee", email = "sam.lee@example.com", mobile = "07700900999"),
         )
         assertEquals(55, updated.latestScore)
         assertEquals("Sam Lee", adults.olderAdult("oa-3").neighbour.displayName)

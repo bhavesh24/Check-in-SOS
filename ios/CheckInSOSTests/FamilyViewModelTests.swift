@@ -71,7 +71,7 @@ import Testing
         let vm = makeVM()
         await vm.load()
         #expect([vm.firstName, vm.middleName, vm.lastName, vm.email, vm.mobile] ==
-                ["Alex", "", "Brown", "alex@example.com", "7123456789"])
+                ["Alex", "", "Brown", "alex@example.com", "7700900123"])
         vm.firstName = "Sam"
         await vm.load()
         #expect(vm.firstName == "Sam")
@@ -88,14 +88,14 @@ import Testing
         #expect(vm.errorMessage == nil)
         let neighbour = try await store.olderAdult(id: "oa-1").neighbour
         #expect(neighbour.displayName == "Sam Green")
-        #expect(neighbour.mobile == "07123456789")
+        #expect(neighbour.mobile == "07700900123")
     }
 
     @Test(arguments: [
-        ("", "Brown", "a@b.co", "7123456789", "First name is required"),
-        ("Sam", " ", "a@b.co", "7123456789", "Last name is required"),
-        ("Sam", "Brown", "nope", "7123456789", "Enter a valid email"),
-        ("Sam", "Brown", "a@b.co", "12", "Enter a valid UK mobile number"),
+        ("", "Brown", "a@example.com", "7700900123", "First name is required"),
+        ("Sam", " ", "a@example.com", "7700900123", "Last name is required"),
+        ("Sam", "Brown", "nope", "7700900123", "Enter a valid email"),
+        ("Sam", "Brown", "a@example.com", "12", "Enter a valid UK mobile number"),
     ])
     func validationErrors(first: String, last: String, email: String, mobile: String, message: String) async {
         let vm = makeVM()
@@ -123,11 +123,11 @@ import Testing
     }
 
     @Test func mobileNumberConversion() {
-        #expect(EditNeighbourViewModel.nationalNumber("07123456789") == "7123456789")
-        #expect(EditNeighbourViewModel.nationalNumber("+447123456789") == "+447123456789")
-        #expect(EditNeighbourViewModel.storedNumber(" 7123 456789 ") == "07123 456789")
-        #expect(EditNeighbourViewModel.storedNumber("07123456789") == "07123456789")
-        #expect(EditNeighbourViewModel.storedNumber("+447123456789") == "+447123456789")
+        #expect(EditNeighbourViewModel.nationalNumber("07700900123") == "7700900123")
+        #expect(EditNeighbourViewModel.nationalNumber("+447700900123") == "+447700900123")
+        #expect(EditNeighbourViewModel.storedNumber(" 7700 900123 ") == "07700 900123")
+        #expect(EditNeighbourViewModel.storedNumber("07700900123") == "07700900123")
+        #expect(EditNeighbourViewModel.storedNumber("+447700900123") == "+447700900123")
         #expect(EditNeighbourViewModel.storedNumber("") == "")
     }
 }

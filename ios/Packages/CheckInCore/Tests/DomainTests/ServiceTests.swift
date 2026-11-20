@@ -40,7 +40,7 @@ import Testing
 }
 
 @Suite struct NeighbourValidatorTests {
-    let valid = Neighbour(firstName: " Alex ", lastName: "Brown", email: "alex@example.com", mobile: "07123 456789")
+    let valid = Neighbour(firstName: " Alex ", lastName: "Brown", email: "alex@example.com", mobile: "07700 900123")
 
     @Test func trimsAndAccepts() throws {
         let result = try NeighbourValidator.validate(valid)
@@ -49,17 +49,17 @@ import Testing
     }
 
     @Test(arguments: [
-        (Neighbour(firstName: "  ", lastName: "B", email: "a@b.co", mobile: "07123456789"), NeighbourValidationError.firstNameRequired),
-        (Neighbour(firstName: "A", lastName: "", email: "a@b.co", mobile: "07123456789"), .lastNameRequired),
-        (Neighbour(firstName: "A", lastName: "B", email: "ABC@mail", mobile: "07123456789"), .invalidEmail),
-        (Neighbour(firstName: "A", lastName: "B", email: "a@b.co", mobile: "0712"), .invalidMobile),
-        (Neighbour(firstName: "A", lastName: "B", email: "a@b.co", mobile: "07123abc789"), .invalidMobile),
+        (Neighbour(firstName: "  ", lastName: "B", email: "a@example.com", mobile: "07700900123"), NeighbourValidationError.firstNameRequired),
+        (Neighbour(firstName: "A", lastName: "", email: "a@example.com", mobile: "07700900123"), .lastNameRequired),
+        (Neighbour(firstName: "A", lastName: "B", email: "ABC@mail", mobile: "07700900123"), .invalidEmail),
+        (Neighbour(firstName: "A", lastName: "B", email: "a@example.com", mobile: "0712"), .invalidMobile),
+        (Neighbour(firstName: "A", lastName: "B", email: "a@example.com", mobile: "07700abc123"), .invalidMobile),
     ])
     func rejects(neighbour: Neighbour, error: NeighbourValidationError) {
         #expect(throws: error) { try NeighbourValidator.validate(neighbour) }
     }
 
-    @Test(arguments: ["+44 7123 456789", "07123-456-789", "0123456789"])
+    @Test(arguments: ["+44 7700 900123", "07700-900-123", "0770090012"])
     func acceptsUkMobileFormats(mobile: String) {
         #expect(NeighbourValidator.isValidMobile(mobile))
     }

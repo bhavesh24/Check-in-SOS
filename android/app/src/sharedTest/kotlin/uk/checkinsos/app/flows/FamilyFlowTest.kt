@@ -17,7 +17,7 @@ class FamilyFlowTest : FlowTest() {
             .assertField("firstName", "Alex")
             .assertField("lastName", "Brown")
             .assertField("email", "alex.brown@example.com")
-            .assertField("mobile", "7123456789")
+            .assertField("mobile", "7700900123")
             .replace("firstName", "Sam")
             .save()
             .assertStatus("Score 76 out of 100", "Sam Brown")

@@ -33,7 +33,7 @@ val T0: Instant = Instant.parse("2026-01-15T09:00:00Z")
 class TestFailure : Exception("test failure")
 
 fun adult(id: String, name: String, score: Int?) = OlderAdult(
-    id, name, score, Neighbour(firstName = "Alex", lastName = "Brown", email = "alex@example.com", mobile = "07123456789"),
+    id, name, score, Neighbour(firstName = "Alex", lastName = "Brown", email = "alex@example.com", mobile = "07700900123"),
 )
 
 /** In-memory fake for every repository (test-only). Set [failing] to make every call throw. */

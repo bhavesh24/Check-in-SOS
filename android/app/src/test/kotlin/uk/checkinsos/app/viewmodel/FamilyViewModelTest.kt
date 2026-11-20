@@ -84,7 +84,7 @@ class EditNeighbourViewModelTest {
         val vm = vm()
         vm.load()
         val s = vm.state.value
-        assertEquals(listOf("Alex", "", "Brown", "alex@example.com", "7123456789"), listOf(s.firstName, s.middleName, s.lastName, s.email, s.mobile))
+        assertEquals(listOf("Alex", "", "Brown", "alex@example.com", "7700900123"), listOf(s.firstName, s.middleName, s.lastName, s.email, s.mobile))
         vm.onFirstName("Sam")
         vm.load()
         assertEquals("Sam", vm.state.value.firstName)
@@ -100,21 +100,21 @@ class EditNeighbourViewModelTest {
         vm.onMiddleName("J")
         vm.onLastName("Green")
         vm.onEmail("sam@example.com")
-        vm.onMobile("7999 123456")
+        vm.onMobile("7700 900321")
         vm.save()
         assertEquals(1, events.size)
         assertNull(vm.state.value.errorMessage)
         val saved = store.olderAdult("oa-1").neighbour
         assertEquals("Sam Green", saved.displayName)
-        assertEquals("07999 123456", saved.mobile)
+        assertEquals("07700 900321", saved.mobile)
     }
 
     @Test fun validationErrors() = runTest {
         val cases = listOf(
-            listOf("", "Brown", "a@b.co", "7123456789") to "First name is required",
-            listOf("Sam", " ", "a@b.co", "7123456789") to "Last name is required",
-            listOf("Sam", "Brown", "nope", "7123456789") to "Enter a valid email",
-            listOf("Sam", "Brown", "a@b.co", "12") to "Enter a valid UK mobile number",
+            listOf("", "Brown", "a@example.com", "7700900123") to "First name is required",
+            listOf("Sam", " ", "a@example.com", "7700900123") to "Last name is required",
+            listOf("Sam", "Brown", "nope", "7700900123") to "Enter a valid email",
+            listOf("Sam", "Brown", "a@example.com", "12") to "Enter a valid UK mobile number",
         )
         for ((fields, message) in cases) {
             val vm = vm()
@@ -144,11 +144,11 @@ class EditNeighbourViewModelTest {
     }
 
     @Test fun mobileNumberConversion() {
-        assertEquals("7123456789", EditNeighbourViewModel.nationalNumber("07123456789"))
-        assertEquals("+447123456789", EditNeighbourViewModel.nationalNumber("+447123456789"))
-        assertEquals("07123 456789", EditNeighbourViewModel.storedNumber(" 7123 456789 "))
-        assertEquals("07123456789", EditNeighbourViewModel.storedNumber("07123456789"))
-        assertEquals("+447123456789", EditNeighbourViewModel.storedNumber("+447123456789"))
+        assertEquals("7700900123", EditNeighbourViewModel.nationalNumber("07700900123"))
+        assertEquals("+447700900123", EditNeighbourViewModel.nationalNumber("+447700900123"))
+        assertEquals("07700 900123", EditNeighbourViewModel.storedNumber(" 7700 900123 "))
+        assertEquals("07700900123", EditNeighbourViewModel.storedNumber("07700900123"))
+        assertEquals("+447700900123", EditNeighbourViewModel.storedNumber("+447700900123"))
         assertEquals("", EditNeighbourViewModel.storedNumber(""))
     }
 }

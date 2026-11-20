@@ -59,11 +59,11 @@ class EscalationPolicyTest {
 }
 
 class NeighbourValidatorTest {
-    private fun n(first: String = "A", last: String = "B", email: String = "a@b.co", mobile: String = "07123456789") =
+    private fun n(first: String = "A", last: String = "B", email: String = "a@example.com", mobile: String = "07700900123") =
         Neighbour(firstName = first, lastName = last, email = email, mobile = mobile)
 
     @Test fun trimsAndAccepts() {
-        val result = NeighbourValidator.validate(n(first = " Alex ", last = "Brown", mobile = "07123 456789"))
+        val result = NeighbourValidator.validate(n(first = " Alex ", last = "Brown", mobile = "07700 900123"))
         val valid = (result as NeighbourValidator.Result.Valid).neighbour
         assertEquals("Alex", valid.firstName)
         assertEquals("Alex Brown", valid.displayName)
@@ -75,7 +75,7 @@ class NeighbourValidatorTest {
             n(last = "") to NeighbourValidationError.LAST_NAME_REQUIRED,
             n(email = "ABC@mail") to NeighbourValidationError.INVALID_EMAIL,
             n(mobile = "0712") to NeighbourValidationError.INVALID_MOBILE,
-            n(mobile = "07123abc789") to NeighbourValidationError.INVALID_MOBILE,
+            n(mobile = "07700abc123") to NeighbourValidationError.INVALID_MOBILE,
         )
         for ((neighbour, error) in cases) {
             assertEquals(NeighbourValidator.Result.Invalid(error), NeighbourValidator.validate(neighbour))
@@ -83,7 +83,7 @@ class NeighbourValidatorTest {
     }
 
     @Test fun acceptsUkMobileFormats() {
-        for (mobile in listOf("+44 7123 456789", "07123-456-789", "0123456789", "7123456789")) {
+        for (mobile in listOf("+44 7700 900123", "07700-900-123", "0770090012", "7700900123")) {
             assertTrue(NeighbourValidator.isValidMobile(mobile), mobile)
         }
     }

@@ -18,7 +18,7 @@ import java.time.Instant
 val T0: Instant = Instant.parse("2026-01-15T09:00:00Z")
 
 fun adult(id: String, name: String, score: Int?) = OlderAdult(
-    id, name, score, Neighbour(firstName = "N", lastName = id, email = "n@x.io", mobile = "07123456789"),
+    id, name, score, Neighbour(firstName = "N", lastName = id, email = "n@example.com", mobile = "07700900123"),
 )
 
 /** One in-memory fake that implements every repository interface (test-only). */

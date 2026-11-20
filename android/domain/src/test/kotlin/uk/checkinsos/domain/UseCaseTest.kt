@@ -73,10 +73,10 @@ class FamilyUseCaseTest {
 
     @Test fun updateNeighbourValidatesAndSaves() = runTest {
         val update = UpdateNeighbour(store)
-        val saved = update("oa-1", Neighbour(firstName = " Sam ", lastName = "Lee", email = "sam@lee.uk", mobile = "07999999999"))
+        val saved = update("oa-1", Neighbour(firstName = " Sam ", lastName = "Lee", email = "sam.lee@example.com", mobile = "07700900999"))
         assertEquals("Sam Lee", saved.neighbour.displayName)
         val error = assertFailsWith<DomainException.InvalidNeighbour> {
-            update("oa-1", Neighbour(firstName = "Sam", lastName = "Lee", email = "nope", mobile = "07999999999"))
+            update("oa-1", Neighbour(firstName = "Sam", lastName = "Lee", email = "nope", mobile = "07700900999"))
         }
         assertEquals(NeighbourValidationError.INVALID_EMAIL, error.error)
     }

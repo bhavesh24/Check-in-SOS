@@ -38,7 +38,7 @@ import Domain
     @Test func updatesScoreAndNeighbour() async throws {
         try await adults.recordScore(olderAdultId: "oa-3", score: 55)
         let updated = try await adults.updateNeighbour(olderAdultId: "oa-3", neighbour: Neighbour(
-            firstName: "Sam", lastName: "Lee", email: "sam@lee.uk", mobile: "07999999999"))
+            firstName: "Sam", lastName: "Lee", email: "sam.lee@example.com", mobile: "07700900999"))
         #expect(updated.latestScore == 55)
         #expect(try await adults.olderAdult(id: "oa-3").neighbour.displayName == "Sam Lee")
         #expect(try await PatientRepositoryImpl(source: source).patients()[1].latestScore == 55)

@@ -44,11 +44,11 @@ import Testing
     @Test func updateNeighbourValidatesAndSaves() async throws {
         let update = UpdateNeighbour(olderAdults: store)
         let saved = try await update(olderAdultId: "oa-1", neighbour: Neighbour(
-            firstName: " Sam ", lastName: "Lee", email: "sam@lee.uk", mobile: "07999999999"))
+            firstName: " Sam ", lastName: "Lee", email: "sam.lee@example.com", mobile: "07700900999"))
         #expect(saved.neighbour.displayName == "Sam Lee")
         await #expect(throws: DomainError.invalidNeighbour(.invalidEmail)) {
             try await update(olderAdultId: "oa-1", neighbour: Neighbour(
-                firstName: "Sam", lastName: "Lee", email: "nope", mobile: "07999999999"))
+                firstName: "Sam", lastName: "Lee", email: "nope", mobile: "07700900999"))
         }
     }
 

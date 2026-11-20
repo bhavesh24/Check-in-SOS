@@ -63,12 +63,12 @@ final class EditNeighbourViewModel {
         }
     }
 
-    /// "07123456789" → "7123456789" (shown after the "+44" prefix).
+    /// "07700900123" → "7700900123" (shown after the "+44" prefix).
     static func nationalNumber(_ stored: String) -> String {
         stored.hasPrefix("0") ? String(stored.dropFirst()) : stored
     }
 
-    /// "7123 456789" → "07123 456789". Numbers already starting "0" or "+" are kept as typed.
+    /// "7700 900123" → "07700 900123". Numbers already starting "0" or "+" are kept as typed.
     static func storedNumber(_ field: String) -> String {
         let trimmed = field.trimmingCharacters(in: .whitespaces)
         if trimmed.isEmpty || trimmed.hasPrefix("0") || trimmed.hasPrefix("+") { return trimmed }

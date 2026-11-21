@@ -6,6 +6,8 @@ final class FamilyFlowTests: UITestCase {
             .assertLovedOnesShown()
             .openStatus("oa-1", name: "Margaret Wilson")
             .assertStatus(scoreLabel: "Score 76 out of 100", neighbour: "Alex Brown")
+            .assertCheckIns(lastCheckIn: "Last check-in Today, 08:00",
+                            trend: "Recent check-ins: 72, 70, 74, 68, 73, 78, 76")
     }
 
     func testEditNeighbourSavesAndStatusShowsNewName() {
@@ -59,6 +61,7 @@ final class FamilyFlowTests: UITestCase {
         let robot = home.chooseFamily()
             .openStatus("oa-3", name: "Edith Clarke")
             .assertStatus(scoreLabel: "No score yet", neighbour: "Tom Hughes")
+            .assertCheckIns(lastCheckIn: "No check-in yet", trend: nil)
             .openTimeline()
         robot.assertLabel("timeline.empty", "No events yet")
         robot.assertMissing("timeline.event.0")

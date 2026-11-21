@@ -32,6 +32,20 @@ object MockFixtures {
     /** Patient id → older adult id, in list order. */
     internal val patients: List<Pair<String, String>> = listOf("p-1" to "oa-2", "p-2" to "oa-3", "p-3" to "oa-1")
 
+    internal data class SeedScore(val olderAdultId: String, val minutesBefore: Long, val score: Int)
+
+    /**
+     * Daily check-ins for the trend chart, oldest first. Each list's last score is the adult's latest score,
+     * taken at the same time as their "Score N" timeline event; earlier ones are one day apart.
+     */
+    internal fun scoreHistory(): List<SeedScore> {
+        val day = 24L * 60
+        fun seeds(id: String, latestMinutesBefore: Long, scores: List<Int>) =
+            scores.mapIndexed { i, score -> SeedScore(id, latestMinutesBefore + (scores.size - 1 - i) * day, score) }
+        return seeds("oa-1", 60, listOf(72, 70, 74, 68, 73, 78, 76)) +
+            seeds("oa-2", 180, listOf(74, 71, 66, 60, 52, 45, 38))
+    }
+
     internal data class SeedEvent(val olderAdultId: String, val minutesBefore: Long, val kind: TimelineEventKind)
 
     internal fun timeline(): List<SeedEvent> = listOf(

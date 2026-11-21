@@ -130,6 +130,10 @@ import Testing
     @Test func sharedCopy() {
         #expect(DisplayText.score(76) == "Score 76")
         #expect(DisplayText.score(nil) == "No score yet")
+        #expect(DisplayText.initials("Margaret Wilson") == "MW")
+        #expect(DisplayText.initials("Tom J Hughes") == "TH")
+        #expect(DisplayText.initials("cher") == "C")
+        #expect(DisplayText.lastCheckIn(nil, now: t0, timeZone: .gmt) == "No check-in yet")
         #expect(DisplayText.countdown(seconds: 1200) == "20:00")
         #expect(DisplayText.countdown(seconds: 61) == "01:01")
         #expect(DisplayText.countdown(seconds: 0) == "Time expired")

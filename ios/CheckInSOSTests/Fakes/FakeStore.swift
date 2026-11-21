@@ -6,8 +6,8 @@ let t0 = Date(timeIntervalSince1970: 1_768_467_600)
 
 struct TestFailure: Error {}
 
-func adult(_ id: String, _ name: String, score: Int?) -> OlderAdult {
-    OlderAdult(id: id, name: name, latestScore: score,
+func adult(_ id: String, _ name: String, score: Int?, lastCheckIn: Date? = nil) -> OlderAdult {
+    OlderAdult(id: id, name: name, latestScore: score, lastCheckIn: lastCheckIn,
                neighbour: Neighbour(firstName: "Alex", lastName: "Brown", email: "alex@example.com",
                                     mobile: "07700900123"))
 }
@@ -18,6 +18,7 @@ actor FakeStore: OlderAdultRepository, PatientRepository, AlertRepository, Timel
     var patientList: [Patient]
     var alerts: [String: Alert] = [:]
     var events: [TimelineEvent] = []
+    var history: [ScoreRecord] = []
     var failing = false
 
     init(adults: [OlderAdult] = [adult("oa-1", "Margaret Wilson", score: 76), adult("oa-2", "Arthur Patel", score: 38)],
@@ -44,10 +45,16 @@ actor FakeStore: OlderAdultRepository, PatientRepository, AlertRepository, Timel
         adults[i].neighbour = neighbour
         return adults[i]
     }
-    func recordScore(olderAdultId: String, score: Int) async throws {
+    func recordScore(olderAdultId: String, score: Int, at date: Date) async throws {
         try check()
         guard let i = adults.firstIndex(where: { $0.id == olderAdultId }) else { throw DomainError.notFound(olderAdultId) }
         adults[i].latestScore = score
+        adults[i].lastCheckIn = date
+        history.append(ScoreRecord(score: score, date: date))
+    }
+    func scoreHistory(olderAdultId: String) async throws -> [ScoreRecord] {
+        try check()
+        return history
     }
     func patients() async throws -> [Patient] { try check(); return patientList }
     func create(olderAdultId: String, subjectName: String, recipient: AlertRecipient, score: Int?,

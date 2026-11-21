@@ -12,7 +12,7 @@ struct ReachedView: View {
                 .disabled(viewModel.isBusy)
                 .accessibilityIdentifier("reached.confirm")
         }
-        .navigationTitle("Help")
+        .navigationTitle("On your way")
         .withBackButton()
     }
 }

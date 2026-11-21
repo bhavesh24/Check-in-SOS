@@ -21,7 +21,7 @@ class SubmitAssessment(
     suspend operator fun invoke(olderAdultId: String, assessment: Assessment): AssessmentResult {
         val score = ScoreCalculator.score(assessment)
         val now = time.now()
-        olderAdults.recordScore(olderAdultId, score)
+        olderAdults.recordScore(olderAdultId, score, now)
         timeline.append(olderAdultId, TimelineEventKind.Score(score), now)
 
         val timeout = EscalationPolicy.acknowledgementTimeout(score)

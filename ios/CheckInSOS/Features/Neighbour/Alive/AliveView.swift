@@ -27,7 +27,7 @@ struct AliveView: View {
                 .disabled(viewModel.isBusy)
                 .accessibilityIdentifier("alive.yes")
         }
-        .navigationTitle("Help")
+        .navigationTitle("Emergency")
         .withBackButton()
     }
 }

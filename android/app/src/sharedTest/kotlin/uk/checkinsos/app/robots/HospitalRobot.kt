@@ -14,7 +14,7 @@ class HospitalRobot(rule: ComposeTestRule) : Robot(rule) {
 
     fun simulateAlert() = apply {
         tap("patients.simulateAlert")
-        assertTitle("Help")
+        assertTitle("Urgent alert")
         assertStep(1, of = 5)
         assertText("hospitalAlert.message", "The patient Arthur Patel needs your help, please acknowledge the notification")
         assertText("hospitalAlert.countdown", "20:00")
@@ -31,6 +31,18 @@ class HospitalRobot(rule: ComposeTestRule) : Robot(rule) {
     fun assertQuestion(heading: String, step: Int) = apply {
         rule.waitForIdle()
         rule.onNodeWithText(heading).assertExists()
+        assertTitle(TITLES.getValue(heading))
         assertStep(step, of = 5)
+    }
+
+    private companion object {
+        /** Screen title for each question (docs/screens.md, Steps after the alert). */
+        val TITLES = mapOf(
+            "Have you taken them in your care?" to "In care",
+            "Are they recovering?" to "Recovery",
+            "Have they recovered?" to "Recovery",
+            "Are they in bad condition?" to "Condition",
+            "Is your patient alive?" to "Patient status",
+        )
     }
 }

@@ -147,6 +147,9 @@ class ScoreAndSharedTest {
     @Test fun sharedCopy() {
         assertEquals("Score 76", DisplayText.score(76))
         assertEquals("No score yet", DisplayText.score(null))
+        assertEquals("MW", DisplayText.initials("Margaret Wilson"))
+        assertEquals("TH", DisplayText.initials("Tom J Hughes"))
+        assertEquals("C", DisplayText.initials("cher"))
         assertEquals("20:00", DisplayText.countdown(1200))
         assertEquals("01:01", DisplayText.countdown(61))
         assertEquals("Time expired", DisplayText.countdown(0))

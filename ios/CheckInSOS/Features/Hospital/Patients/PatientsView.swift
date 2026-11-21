@@ -5,11 +5,9 @@ struct PatientsView: View {
 
     var body: some View {
         FlowScreen(errorMessage: viewModel.errorMessage) {
-            VStack(spacing: 12) {
-                ForEach(viewModel.patients) { patient in
-                    PersonRow(name: patient.name, subtitle: viewModel.subtitle(for: patient))
-                        .accessibilityIdentifier("patients.row.\(patient.id)")
-                }
+            GroupedList(items: viewModel.patients) { patient in
+                PersonRow(name: patient.name, score: patient.latestScore)
+                    .accessibilityIdentifier("patients.row.\(patient.id)")
             }
         } actions: {
             Button("Simulate alert") { Task { await viewModel.simulate() } }

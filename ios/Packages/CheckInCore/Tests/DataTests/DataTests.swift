@@ -22,6 +22,18 @@ import Domain
         #expect(ISO8601DateFormatter().string(from: MockFixtures.fixedNow) == "2026-01-15T09:00:00Z")
     }
 
+    @Test func seededScoreHistoryEndsAtTheLatestScore() async throws {
+        let now = MockFixtures.fixedNow
+        let margaret = try await adults.scoreHistory(olderAdultId: "oa-1")
+        #expect(margaret.map(\.score) == [72, 70, 74, 68, 73, 78, 76])
+        #expect(margaret.last?.date == now.addingTimeInterval(-3600))
+        #expect(margaret.first?.date == now.addingTimeInterval(-3600 - 6 * 86_400))
+        #expect(try await adults.scoreHistory(olderAdultId: "oa-2").map(\.score) == [74, 71, 66, 60, 52, 45, 38])
+        #expect(try await adults.scoreHistory(olderAdultId: "oa-3").isEmpty)
+        #expect(try await adults.lovedOnes().map(\.lastCheckIn) ==
+                [now.addingTimeInterval(-3600), now.addingTimeInterval(-3 * 3600), nil])
+    }
+
     @Test func seededTimelineMirrorsPrototype() async throws {
         let events = try await timeline.events(olderAdultId: "oa-2")
         #expect(events.map(\.kind.title) == [
@@ -36,7 +48,9 @@ import Domain
     }
 
     @Test func updatesScoreAndNeighbour() async throws {
-        try await adults.recordScore(olderAdultId: "oa-3", score: 55)
+        try await adults.recordScore(olderAdultId: "oa-3", score: 55, at: MockFixtures.fixedNow)
+        #expect(try await adults.scoreHistory(olderAdultId: "oa-3") == [ScoreRecord(score: 55, date: MockFixtures.fixedNow)])
+        #expect(try await adults.olderAdult(id: "oa-3").lastCheckIn == MockFixtures.fixedNow)
         let updated = try await adults.updateNeighbour(olderAdultId: "oa-3", neighbour: Neighbour(
             firstName: "Sam", lastName: "Lee", email: "sam.lee@example.com", mobile: "07700900999"))
         #expect(updated.latestScore == 55)
@@ -55,7 +69,8 @@ import Domain
 
     @Test func missingIdsThrowNotFound() async {
         await #expect(throws: DomainError.notFound("x")) { try await adults.olderAdult(id: "x") }
-        await #expect(throws: DomainError.notFound("x")) { try await adults.recordScore(olderAdultId: "x", score: 1) }
+        await #expect(throws: DomainError.notFound("x")) { try await adults.recordScore(olderAdultId: "x", score: 1, at: MockFixtures.fixedNow) }
+        await #expect(throws: DomainError.notFound("x")) { try await adults.scoreHistory(olderAdultId: "x") }
         await #expect(throws: DomainError.notFound("x")) { try await alerts.alert(id: "x") }
         await #expect(throws: DomainError.notFound("x")) { try await alerts.updateStatus(alertId: "x", status: .resolved) }
     }

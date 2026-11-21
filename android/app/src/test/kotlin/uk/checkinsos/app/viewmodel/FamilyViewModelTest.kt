@@ -1,8 +1,6 @@
 package uk.checkinsos.app.viewmodel
 
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
-import org.junit.Test
 import uk.checkinsos.app.fakes.FakeStore
 import uk.checkinsos.app.fakes.MainDispatcherRule
 import uk.checkinsos.app.fakes.T0
@@ -13,11 +11,14 @@ import uk.checkinsos.app.feature.family.lovedones.LovedOnesViewModel
 import uk.checkinsos.app.feature.family.status.StatusViewModel
 import uk.checkinsos.app.feature.family.timeline.TimelineViewModel
 import uk.checkinsos.app.feature.shared.DisplayText
+import uk.checkinsos.app.feature.shared.ScoreBand
 import uk.checkinsos.domain.model.CareOutcome
 import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.model.TimelineSeverity
+import uk.checkinsos.domain.service.FixedTimeProvider
 import uk.checkinsos.domain.usecase.GetLovedOneStatus
 import uk.checkinsos.domain.usecase.GetLovedOnes
+import uk.checkinsos.domain.usecase.GetScoreHistory
 import uk.checkinsos.domain.usecase.GetTimeline
 import uk.checkinsos.domain.usecase.UpdateNeighbour
 import java.time.Duration
@@ -26,25 +27,40 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.junit.Rule
+import org.junit.Test
 
 class LovedOnesViewModelTest {
     @get:Rule val main = MainDispatcherRule()
-    private val store = FakeStore(listOf(adult("oa-1", "Margaret Wilson", 76), adult("oa-3", "Edith Clarke", null)))
+    private val store = FakeStore(
+        listOf(
+            adult("oa-1", "Margaret Wilson", 76).copy(lastCheckIn = T0.minusSeconds(3600)),
+            adult("oa-2", "Arthur Patel", 38).copy(lastCheckIn = T0.minusSeconds(86_400)),
+            adult("oa-4", "Ada Lane", 50).copy(lastCheckIn = T0.minusSeconds(2 * 86_400L)),
+            adult("oa-3", "Edith Clarke", null),
+        ),
+    )
+
+    private fun makeVM() = LovedOnesViewModel(GetLovedOnes(store), FixedTimeProvider(T0), ZoneOffset.UTC)
 
     @Test fun loadsAndSelects() = runTest {
-        val vm = LovedOnesViewModel(GetLovedOnes(store))
+        val vm = makeVM()
         val events = collect(vm.events)
+        assertEquals("No check-in yet", vm.state.value.subtitle(adult("x", "X", null)))
         vm.load()
         val state = vm.state.value
-        assertEquals(listOf("oa-1", "oa-3"), state.lovedOnes.map { it.id })
-        assertEquals(listOf("Score 76", "No score yet"), state.lovedOnes.map(state::subtitle))
+        assertEquals(listOf("oa-1", "oa-2", "oa-4", "oa-3"), state.lovedOnes.map { it.id })
+        assertEquals(
+            listOf("Last check-in Today, 08:00", "Last check-in Yesterday, 09:00", "Last check-in 13 Jan, 09:00", "No check-in yet"),
+            state.lovedOnes.map(state::subtitle),
+        )
         vm.select("oa-3")
         assertEquals(listOf(LovedOnesViewModel.Event("oa-3")), events)
     }
 
     @Test fun failureShowsError() = runTest {
         store.failing = true
-        val vm = LovedOnesViewModel(GetLovedOnes(store))
+        val vm = makeVM()
         vm.load()
         assertEquals(DisplayText.GENERIC_ERROR, vm.state.value.errorMessage)
     }
@@ -54,8 +70,11 @@ class StatusViewModelTest {
     @get:Rule val main = MainDispatcherRule()
     private val store = FakeStore()
 
+    private fun makeVM(id: String = "oa-1") =
+        StatusViewModel(id, GetLovedOneStatus(store), GetScoreHistory(store), FixedTimeProvider(T0), ZoneOffset.UTC)
+
     @Test fun loadsStatusAndNavigates() = runTest {
-        val vm = StatusViewModel("oa-1", GetLovedOneStatus(store))
+        val vm = makeVM()
         val events = collect(vm.events)
         assertEquals("", vm.state.value.title)
         assertEquals("", vm.state.value.neighbourText)
@@ -63,13 +82,31 @@ class StatusViewModelTest {
         assertEquals("Margaret Wilson", vm.state.value.title)
         assertEquals("1st level: Alex Brown", vm.state.value.neighbourText)
         assertEquals("Current score", vm.state.value.scoreCaption)
+        assertEquals(ScoreBand.GOOD, vm.state.value.band)
+        assertEquals("Alex Brown", vm.state.value.neighbourName)
+        assertEquals("1st level neighbour", vm.state.value.neighbourCaption)
+        assertEquals("No check-in yet", vm.state.value.lastCheckInText)
+        assertFalse(vm.state.value.showsTrend)
         vm.editNeighbour()
         vm.openTimeline()
         assertEquals(listOf(StatusViewModel.Event.EditNeighbour("oa-1"), StatusViewModel.Event.Timeline("oa-1")), events)
     }
 
+    @Test fun loadsLastCheckInAndTrend() = runTest {
+        store.recordScore("oa-1", 72, T0.minusSeconds(86_400))
+        store.recordScore("oa-1", 64, T0.minusSeconds(3600))
+        val vm = makeVM()
+        vm.load()
+        val state = vm.state.value
+        assertEquals("Last check-in Today, 08:00", state.lastCheckInText)
+        assertEquals(ScoreBand.MILD, state.band)
+        assertTrue(state.showsTrend)
+        assertEquals(listOf(72, 64), state.history.map { it.score })
+        assertEquals("Recent check-ins: 72, 64", state.trendAccessibilityText)
+    }
+
     @Test fun missingPersonShowsError() = runTest {
-        val vm = StatusViewModel("nope", GetLovedOneStatus(store))
+        val vm = makeVM("nope")
         vm.load()
         assertEquals(DisplayText.GENERIC_ERROR, vm.state.value.errorMessage)
     }
@@ -167,6 +204,7 @@ class TimelineViewModelTest {
         assertEquals(listOf("Score 38", "Recovered"), rows.map { it.title })
         assertEquals(listOf("06:00", "09:00"), rows.map { it.time })
         assertEquals(listOf(TimelineSeverity.CRITICAL, TimelineSeverity.OK), rows.map { it.severity })
+        assertEquals(listOf(TimelineEventKind.Score(38), TimelineEventKind.Outcome(CareOutcome.RECOVERED)), rows.map { it.kind })
         assertEquals(listOf("timeline.event.0", "timeline.event.1"), rows.map { it.testTag })
         assertFalse(vm.state.value.isEmpty)
     }

@@ -6,35 +6,62 @@ struct StatusView: View {
     var body: some View {
         FlowScreen(errorMessage: viewModel.errorMessage) {
             if let adult = viewModel.adult {
-                VStack(spacing: 4) {
-                    ScoreNumeral(score: adult.latestScore)
-                        .accessibilityIdentifier("status.score")
+                VStack(spacing: 8) {
                     Text(viewModel.scoreCaption)
                         .font(.headline)
                         .foregroundStyle(Theme.secondaryText)
+                    if let score = adult.latestScore, let band = viewModel.band {
+                        ScoreRing(score: score, band: band, size: 160)
+                            .accessibilityIdentifier("status.score")
+                    } else {
+                        ScoreNumeral(score: nil)
+                            .accessibilityIdentifier("status.score")
+                    }
+                    Label(viewModel.lastCheckInText, systemImage: "clock")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("status.lastCheckIn")
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
 
-                HStack(spacing: 8) {
-                    Text(viewModel.neighbourText)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(Theme.text)
-                        .fixedSize(horizontal: false, vertical: true)
+                section(viewModel.neighbourCaption) {
+                    HStack(spacing: 12) {
+                        HStack(spacing: 12) {
+                            InitialsAvatar(name: viewModel.neighbourName)
+                            Text(viewModel.neighbourText)
+                                .font(.headline)
+                                .foregroundStyle(Theme.text)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .accessibilityElement(children: .combine)
                         .accessibilityIdentifier("status.neighbour")
-                    Spacer(minLength: 8)
-                    Button(action: viewModel.editNeighbour) {
-                        Image(systemName: "pencil")
-                            .font(.title2)
-                            .frame(width: Theme.minTouchTarget, height: Theme.minTouchTarget)
+                        Button(action: viewModel.editNeighbour) {
+                            Label("Edit neighbour", systemImage: "pencil")
+                                .labelStyle(.iconOnly)
+                                .font(.title3)
+                                .frame(width: Theme.minTouchTarget, height: Theme.minTouchTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .foregroundStyle(Theme.primary)
+                        .accessibilityIdentifier("status.editNeighbour")
                     }
-                    .foregroundStyle(Theme.primary)
-                    .accessibilityLabel("Edit neighbour")
-                    .accessibilityIdentifier("status.editNeighbour")
+                    .padding(.leading, Theme.spacing)
+                    .padding(.trailing, 4)
+                    .padding(.vertical, 8)
+                    .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
                 }
-                .padding(.horizontal, Theme.spacing)
-                .padding(.vertical, 4)
-                .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
+
+                if viewModel.showsTrend {
+                    section(viewModel.trendTitle) {
+                        ScoreTrendChart(records: viewModel.history, accessibilityText: viewModel.trendAccessibilityText)
+                            .padding(Theme.spacing)
+                            .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
+                            .accessibilityIdentifier("status.trend")
+                    }
+                }
             }
         } actions: {
             Button("Timeline", action: viewModel.openTimeline)
@@ -44,5 +71,15 @@ struct StatusView: View {
         .navigationTitle(viewModel.title)
         .withBackButton()
         .task { await viewModel.load() }
+    }
+
+    private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(Theme.text)
+                .accessibilityAddTraits(.isHeader)
+            content()
+        }
     }
 }

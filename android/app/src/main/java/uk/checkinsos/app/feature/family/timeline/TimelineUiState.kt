@@ -1,5 +1,6 @@
 package uk.checkinsos.app.feature.family.timeline
 
+import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.model.TimelineSeverity
 
 data class TimelineRowState(
@@ -8,6 +9,7 @@ data class TimelineRowState(
     val title: String,
     val time: String,
     val severity: TimelineSeverity,
+    val kind: TimelineEventKind,
 ) {
     val testTag: String get() = "timeline.event.$index"
 }

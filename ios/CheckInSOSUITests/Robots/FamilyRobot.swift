@@ -6,6 +6,7 @@ final class FamilyRobot: Robot {
         assertTitle("Your loved ones")
         XCTAssertTrue(waitFor("lovedOnes.row.oa-1").label.contains("Margaret Wilson"))
         XCTAssertTrue(element("lovedOnes.row.oa-1").label.contains("Score 76"))
+        XCTAssertTrue(element("lovedOnes.row.oa-1").label.contains("Last check-in Today, 08:00"))
         XCTAssertTrue(element("lovedOnes.row.oa-2").label.contains("Score 38"))
         XCTAssertTrue(element("lovedOnes.row.oa-3").label.contains("No score yet"))
         return self
@@ -22,6 +23,14 @@ final class FamilyRobot: Robot {
     func assertStatus(scoreLabel: String, neighbour: String) -> Self {
         assertLabel("status.score", scoreLabel)
         assertLabel("status.neighbour", "1st level: \(neighbour)")
+        return self
+    }
+
+    /// "Last check-in …" line, and the trend chart's label (nil when it is hidden).
+    @discardableResult
+    func assertCheckIns(lastCheckIn: String, trend: String?) -> Self {
+        assertLabel("status.lastCheckIn", lastCheckIn)
+        if let trend { assertLabel("status.trend", trend) } else { assertMissing("status.trend") }
         return self
     }
 

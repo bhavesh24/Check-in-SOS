@@ -6,7 +6,10 @@ public protocol OlderAdultRepository: Sendable {
     func neighbours() async throws -> [OlderAdult]
     func olderAdult(id: String) async throws -> OlderAdult
     func updateNeighbour(olderAdultId: String, neighbour: Neighbour) async throws -> OlderAdult
-    func recordScore(olderAdultId: String, score: Int) async throws
+    /// Stores a check-in: updates the latest score and last check-in, and appends to the score history.
+    func recordScore(olderAdultId: String, score: Int, at date: Date) async throws
+    /// Past check-ins, in any order.
+    func scoreHistory(olderAdultId: String) async throws -> [ScoreRecord]
 }
 
 public protocol PatientRepository: Sendable {

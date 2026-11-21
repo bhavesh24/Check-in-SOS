@@ -16,6 +16,14 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 - Orientation: both apps support all four orientations: portrait, upside-down portrait and landscape left/right (Android `fullUser`, so the user's rotation lock is respected). iPhones with Face ID never rotate upside-down (an iOS restriction), so there it only applies to Home-button iPhones. At short landscape heights content scrolls under the pinned action bar rather than clipping.
 - Push notifications are **simulated** by a "Simulate alert" button. 999/111 **never dials** in this build.
 - Any unexpected failure loading or saving shows "Something went wrong. Please try again." (test ID `error.message`) on the current screen.
+- Lists (Loved ones, Neighbours, Patients) are one grouped panel (`surfaceTint`, rounded) with a divider
+  between rows, like an iOS inset grouped list. Each row starts with an initials avatar (first letters of the
+  first and last name, e.g. "MW", in `onPrimary` on a `primary` circle) and ends with a score pill: the number on a tint of its score band colour
+  (see Score), or "No score" when there is none. The pill's accessibility text is "Score 76" / "No score yet".
+- Haptics: primary and secondary buttons give a light tap on press (iOS `sensoryFeedback`, Android
+  `performHapticFeedback`); answer tiles give a selection tick.
+- "When" text (`DisplayText.checkIn`): "Today, 08:00", "Yesterday, 08:00", otherwise "13 Jan, 08:00"
+  (day and short month), all relative to the injected clock.
 - Times (timeline `HH:mm`) use the device time zone; in UI-test mode they use UTC so the fixed clock gives stable values (e.g. `oa-2` "Score 38" at 06:00).
 - UI-test launch: iOS launch argument `-ui-testing`; Android test `AppContainer`. Both use fresh mock data and the fixed clock below.
 
@@ -39,6 +47,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 | `scoreMild` (50–69) | `#F04438` | `#FDA29B` | Score ring, lightest red |
 | `scoreModerate` (30–49) | `#D92D20` | `#F97066` | Score ring |
 | `scoreSevere` (0–29) | `#912018` | `#F04438` | Score ring, deepest red. Every ring colour is ≥3:1 on `background` |
+| `urgent` banner | `statusCritical` | `statusCritical` | alert banner background; text/icon `onRole` (≥4.5:1) |
 
 **Icons** are decorative (hidden from accessibility) and platform-native: SF Symbols on iOS, Material icons on Android.
 
@@ -80,6 +89,18 @@ Seeded timeline for `oa-2` (mirrors the prototype timeline; times relative to th
 | 7 | −0h10 | careOutcome(recovered) | "Recovered" | ok |
 
 `oa-1` has one event: score(76) at −1h00. `oa-3` has none ("No events yet").
+
+Seeded score history (`GetScoreHistory`; one check-in a day, oldest first, the last one at the time of the
+adult's "Score N" timeline event, so it sets their last check-in):
+
+| id | Scores (6 days ago → today) | Last check-in |
+|---|---|---|
+| `oa-1` | 72, 70, 74, 68, 73, 78, 76 | −1h00 (08:00) |
+| `oa-2` | 74, 71, 66, 60, 52, 45, 38 | −3h00 (06:00) |
+| `oa-3` | none | — |
+
+`SubmitAssessment` records each new score with the current time, updating the latest score, last check-in
+and history.
 
 ## Domain rules
 **ScoreCalculator (PLACEHOLDER: no formula is specified).** Score = physical + mood, 0–100.
@@ -170,13 +191,20 @@ display-only, and family see events only on the Timeline.
 ### Concerned family
 **Loved ones**
 - Title "Your loved ones".
-- Rows show the name and the latest score ("Score 76" / "No score yet").
+- Rows (grouped list, see Global rules) show the avatar, the name, "Last check-in Today, 08:00" (or
+  "No check-in yet"), the score pill and a chevron. The row's text includes "Score 76" / "No score yet".
 - Test ID `lovedOnes.row.<id>`. A row opens Current status.
 
 **Current status**
 - Title = the person's name.
-- Big score numeral `status.score` (or "—"), with caption "Current score".
-- "1st level: Alex Brown" `status.neighbour`, with a pencil button `status.editNeighbour` (label "Edit neighbour") that goes to Edit neighbour.
+- Caption "Current score", then the Score ring `status.score` (same colours as the Score screen, 160 pt/dp;
+  label "Score 76 out of 100"). With no score yet it shows "—" (label "No score yet").
+- "Last check-in Today, 08:00" `status.lastCheckIn`, or "No check-in yet".
+- Neighbour card: section caption "1st level neighbour", initials avatar, "1st level: Alex Brown"
+  `status.neighbour`, and a pencil button `status.editNeighbour` (label "Edit neighbour") that goes to Edit neighbour.
+- Section "Recent check-ins" `status.trend`: a line chart of `GetScoreHistory` (the last 7 check-ins, oldest
+  first) on a 0–100 axis, with a dashed line at 70. Shown only with 2 or more check-ins. Accessibility label
+  "Recent check-ins: 72, 70, 74, 68, 73, 78, 76".
 - "Timeline" `status.timeline` goes to Timeline.
 
 **Edit neighbour**
@@ -197,27 +225,45 @@ display-only, and family see events only on the Timeline.
 
 **Timeline**
 - Title "Timeline".
-- A vertical list of events, oldest first. Each row has a coloured ring, the copy and the time (HH:mm).
+- A vertical list of events, oldest first. Each row has an icon badge (the event's colour, icon in `onRole`),
+  the copy and the time (HH:mm). A 2 pt/dp line joins the badges. Icons are decorative:
+
+| Event | SF Symbol | Material icon |
+|---|---|---|
+| Score | `heart.text.square.fill` | `MonitorHeart` |
+| Missed check-in | `clock.badge.exclamationmark` | `AlarmOff` |
+| Notification sent | `bell.fill` | `NotificationsActive` |
+| Acknowledged | `hand.raised.fill` | `PanTool` |
+| Neighbour reached | `figure.walk` | `DirectionsWalk` |
+| Escalation | `exclamationmark.triangle.fill` | `Warning` |
+| In care | `cross.case.fill` | `LocalHospital` |
+| Recovering | `arrow.up.heart.fill` | `Healing` |
+| All OK / Recovered / Confirmed alive | `checkmark.seal.fill` | `Verified` |
+| In bad condition | `exclamationmark.triangle.fill` | `Warning` |
+| Reported deceased | `heart.slash.fill` | `HeartBroken` |
 - Test ID `timeline.event.<index>`. When there are no events: "No events yet" `timeline.empty`.
 
 ### Neighbour (4 steps: Alert = 1, Reached = 2, Escalate = 3, Alive = 4)
 **Neighbours list**
-- Title "Neighbours". Rows `neighbours.row.<id>` are informational.
+- Title "Neighbours". Rows `neighbours.row.<id>` (grouped list: avatar, name, score pill) are informational.
 - "Simulate alert" `neighbours.simulateAlert` runs `SimulateAlert(neighbour)`. It picks the lowest-scoring older adult (Arthur Patel, 38, so the timeout is 20 min) and goes to Help alert.
 
-**Help alert**
-- Title "Help".
+**Help alert** (shared with Hospital alert)
+- Title "Urgent alert".
+- A full-width urgent banner: warning icon and "Urgent: someone needs help now", on `statusCritical`.
 - "Your neighbour Arthur Patel needs your help, please acknowledge the notification" `alert.message`.
+- Countdown ring: a `statusCritical` ring that empties as time runs out (full when the screen opens), with
+  the countdown `alert.countdown` in the middle, e.g. "20:00", ticking each second, and "left to respond"
+  under it. Display only; on expiry it shows "Time expired" and the ring is empty.
 - "Accept" `alert.accept` runs `AcknowledgeAlert` and goes to Reached.
-- Countdown `alert.countdown`, e.g. "20:00", ticking each second. Display only; on expiry it shows "Time expired".
 
 **Have you reached?**
-- Title "Help".
+- Title "On your way".
 - "You have acknowledged to help your neighbour Arthur Patel, please let us know have you reached" `reached.message`.
 - "I have reached" `reached.confirm` runs `MarkArrived` and goes to Escalate.
 
 **Escalate**
-- Title "Help". Heading "Do you want to escalate?".
+- Title "Escalate". Heading "Do you want to escalate?".
 - "No, All OK!" `escalate.allOk` runs `RecordCareOutcome(allOk)` and goes back to the Neighbours list.
 - "Yes, Alert emergency services" `escalate.alertServices` runs `EscalateAlert` and opens the Emergency sheet.
 
@@ -227,23 +273,24 @@ display-only, and family see events only on the Timeline.
 - "Cancel" `emergency.cancel` closes the sheet.
 
 **Is your neighbour alive?**
-- Title "Help". "Emergency services alerted, Is your neighbour alive?".
+- Title "Emergency". "Emergency services alerted, Is your neighbour alive?".
 - "No" `alive.no` runs `RecordCareOutcome(deceased)`.
 - "Yes" `alive.yes` runs `RecordCareOutcome(alive)`.
 - Both go to the Neighbours list.
 
 ### Hospital (5 steps: Alert = 1, In care = 2, Recovering = 3, Recovered / Bad condition = 4, Alive = 5)
 **Patients list**
-- Title "Patients". Rows `patients.row.<id>`.
+- Title "Patients". Rows `patients.row.<id>` (grouped list: avatar, name, score pill).
 - "Simulate alert" `patients.simulateAlert` runs `SimulateAlert(hospital)`. It picks the lowest-scoring patient (Arthur Patel) and goes to Hospital alert.
 
 **Hospital alert**
-- Title "Help".
+- Same screen as Help alert: title "Urgent alert", banner and countdown ring.
 - "The patient Arthur Patel needs your help, please acknowledge the notification" `hospitalAlert.message`.
 - "Accept" `hospitalAlert.accept` runs `AcknowledgeAlert` and goes to In care.
 - Countdown `hospitalAlert.countdown`.
 
-**Steps after the alert** (title "Help" on every screen)
+**Steps after the alert.** Titles: In care "In care", Recovering and Recovered "Recovery", Bad condition
+"Condition", Patient alive "Patient status".
 
 | Step | Heading | Answer | Test ID | Records | Goes to |
 |---|---|---|---|---|---|

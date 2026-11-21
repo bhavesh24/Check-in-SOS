@@ -10,6 +10,14 @@ enum class CareStep {
     /** [outcome] null records nothing; [next] null returns to the Patients list. */
     data class Answer(val title: String, val testTag: String, val outcome: CareOutcome?, val next: CareStep?)
 
+    val title: String
+        get() = when (this) {
+            IN_CARE -> "In care"
+            RECOVERING, RECOVERED -> "Recovery"
+            BAD_CONDITION -> "Condition"
+            PATIENT_ALIVE -> "Patient status"
+        }
+
     val heading: String
         get() = when (this) {
             IN_CARE -> "Have you taken them in your care?"

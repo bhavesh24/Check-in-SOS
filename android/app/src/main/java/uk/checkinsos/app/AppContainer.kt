@@ -32,6 +32,7 @@ import uk.checkinsos.domain.usecase.GetLovedOneStatus
 import uk.checkinsos.domain.usecase.GetLovedOnes
 import uk.checkinsos.domain.usecase.GetNeighbours
 import uk.checkinsos.domain.usecase.GetPatients
+import uk.checkinsos.domain.usecase.GetScoreHistory
 import uk.checkinsos.domain.usecase.GetTimeline
 import uk.checkinsos.domain.usecase.MarkArrived
 import uk.checkinsos.domain.usecase.RecordCareOutcome
@@ -66,8 +67,9 @@ class AppContainer(
     fun makeScore(score: Int, neighbourNotified: Boolean) = ScoreViewModel(score, neighbourNotified)
     fun makeNoCheckIn() = NoCheckInViewModel()
 
-    fun makeLovedOnes() = LovedOnesViewModel(GetLovedOnes(olderAdults))
-    fun makeStatus(olderAdultId: String) = StatusViewModel(olderAdultId, getLovedOneStatus)
+    fun makeLovedOnes() = LovedOnesViewModel(GetLovedOnes(olderAdults), time, zone)
+    fun makeStatus(olderAdultId: String) =
+        StatusViewModel(olderAdultId, getLovedOneStatus, GetScoreHistory(olderAdults), time, zone)
     fun makeEditNeighbour(olderAdultId: String) =
         EditNeighbourViewModel(olderAdultId, getLovedOneStatus, UpdateNeighbour(olderAdults))
     fun makeTimeline(olderAdultId: String) = TimelineViewModel(olderAdultId, GetTimeline(timeline), zone)

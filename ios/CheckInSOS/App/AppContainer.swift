@@ -64,12 +64,14 @@ final class AppContainer {
     }
 
     func makeLovedOnes(onSelect: @escaping (String) -> Void) -> LovedOnesViewModel {
-        LovedOnesViewModel(getLovedOnes: GetLovedOnes(olderAdults: olderAdults), onSelect: onSelect)
+        LovedOnesViewModel(getLovedOnes: GetLovedOnes(olderAdults: olderAdults), time: time, timeZone: timeZone,
+                           onSelect: onSelect)
     }
 
     func makeStatus(olderAdultId: String, onEditNeighbour: @escaping (String) -> Void,
                     onTimeline: @escaping (String) -> Void) -> StatusViewModel {
         StatusViewModel(olderAdultId: olderAdultId, getStatus: getLovedOneStatus,
+                        getScoreHistory: GetScoreHistory(olderAdults: olderAdults), time: time, timeZone: timeZone,
                         onEditNeighbour: onEditNeighbour, onTimeline: onTimeline)
     }
 

@@ -17,7 +17,7 @@ struct EscalateView: View {
                 .disabled(viewModel.isBusy)
                 .accessibilityIdentifier("escalate.alertServices")
         }
-        .navigationTitle("Help")
+        .navigationTitle("Escalate")
         .withBackButton()
         .confirmationDialog("Alert emergency services", isPresented: $viewModel.isEmergencySheetPresented,
                             titleVisibility: .visible) {

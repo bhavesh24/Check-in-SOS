@@ -11,7 +11,7 @@ final class NeighbourRobot: Robot {
     @discardableResult
     func simulateAlert() -> Self {
         tap("neighbours.simulateAlert")
-        assertTitle("Help")
+        assertTitle("Urgent alert")
         assertStep(1, of: 4)
         assertLabel("alert.message",
                     "Your neighbour Arthur Patel needs your help, please acknowledge the notification")
@@ -22,6 +22,7 @@ final class NeighbourRobot: Robot {
     @discardableResult
     func accept() -> Self {
         tap("alert.accept")
+        assertTitle("On your way")
         assertStep(2, of: 4)
         assertLabel("reached.message",
                     "You have acknowledged to help your neighbour Arthur Patel, please let us know have you reached")
@@ -31,6 +32,7 @@ final class NeighbourRobot: Robot {
     @discardableResult
     func confirmReached() -> Self {
         tap("reached.confirm")
+        assertTitle("Escalate")
         assertStep(3, of: 4)
         waitFor("escalate.allOk")
         return self
@@ -68,6 +70,7 @@ final class NeighbourRobot: Robot {
     @discardableResult
     func call(_ number: String) -> Self {
         sheetButton(number).tap()
+        assertTitle("Emergency")
         assertStep(4, of: 4)
         XCTAssertTrue(waitFor("emergency.demoMessage").label.contains("Demo: would call \(number)"))
         return self

@@ -7,6 +7,7 @@ import uk.checkinsos.domain.model.DomainException
 import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.OlderAdult
 import uk.checkinsos.domain.model.Patient
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEvent
 import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.repository.AlertRepository
@@ -29,6 +30,7 @@ class FakeStore(
     val adults = adults.toMutableList()
     val alerts = linkedMapOf<String, Alert>()
     val events = mutableListOf<TimelineEvent>()
+    val history = mutableListOf<ScoreRecord>()
     val kinds get() = events.map { it.kind }
 
     override suspend fun lovedOnes() = adults.toList()
@@ -38,10 +40,12 @@ class FakeStore(
         val i = indexOf(olderAdultId)
         return adults[i].copy(neighbour = neighbour).also { adults[i] = it }
     }
-    override suspend fun recordScore(olderAdultId: String, score: Int) {
+    override suspend fun recordScore(olderAdultId: String, score: Int, date: Instant) {
         val i = indexOf(olderAdultId)
-        adults[i] = adults[i].copy(latestScore = score)
+        adults[i] = adults[i].copy(latestScore = score, lastCheckIn = date)
+        history.add(ScoreRecord(score, date))
     }
+    override suspend fun scoreHistory(olderAdultId: String) = history.toList()
     override suspend fun patients() = patientList
     override suspend fun create(
         olderAdultId: String, subjectName: String, recipient: AlertRecipient, score: Int?,

@@ -11,7 +11,7 @@ class NeighbourRobot(rule: ComposeTestRule) : Robot(rule) {
 
     fun simulateAlert() = apply {
         tap("neighbours.simulateAlert")
-        assertTitle("Help")
+        assertTitle("Urgent alert")
         assertStep(1, of = 4)
         assertText("alert.message", "Your neighbour Arthur Patel needs your help, please acknowledge the notification")
         assertText("alert.countdown", "20:00")
@@ -19,6 +19,7 @@ class NeighbourRobot(rule: ComposeTestRule) : Robot(rule) {
 
     fun accept() = apply {
         tap("alert.accept")
+        assertTitle("On your way")
         assertStep(2, of = 4)
         assertText(
             "reached.message",
@@ -28,6 +29,7 @@ class NeighbourRobot(rule: ComposeTestRule) : Robot(rule) {
 
     fun confirmReached() = apply {
         tap("reached.confirm")
+        assertTitle("Escalate")
         assertStep(3, of = 4)
         waitFor("escalate.allOk")
     }
@@ -52,6 +54,7 @@ class NeighbourRobot(rule: ComposeTestRule) : Robot(rule) {
     /** 999/111 never dial: the Alive screen shows the demo message instead. */
     fun call(number: String) = apply {
         tap("emergency.call$number")
+        assertTitle("Emergency")
         assertStep(4, of = 4)
         waitFor("emergency.demoMessage").assertTextContains("Demo: would call $number")
     }

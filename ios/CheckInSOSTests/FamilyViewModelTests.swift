@@ -4,21 +4,34 @@ import Testing
 @testable import CheckInSOS
 
 @MainActor @Suite struct LovedOnesViewModelTests {
-    let store = FakeStore(adults: [adult("oa-1", "Margaret Wilson", score: 76), adult("oa-3", "Edith Clarke", score: nil)])
+    let store = FakeStore(adults: [
+        adult("oa-1", "Margaret Wilson", score: 76, lastCheckIn: t0.addingTimeInterval(-3600)),
+        adult("oa-2", "Arthur Patel", score: 38, lastCheckIn: t0.addingTimeInterval(-86_400)),
+        adult("oa-4", "Ada Lane", score: 50, lastCheckIn: t0.addingTimeInterval(-2 * 86_400)),
+        adult("oa-3", "Edith Clarke", score: nil),
+    ])
+
+    func makeVM(onSelect: @escaping (String) -> Void = { _ in }) -> LovedOnesViewModel {
+        LovedOnesViewModel(getLovedOnes: GetLovedOnes(olderAdults: store), time: FixedTimeProvider(t0),
+                           timeZone: TimeZone(identifier: "UTC")!, onSelect: onSelect)
+    }
 
     @Test func loadsRowsAndSelects() async {
         let selected = Recorder<String>()
-        let vm = LovedOnesViewModel(getLovedOnes: GetLovedOnes(olderAdults: store), onSelect: selected.record)
+        let vm = makeVM(onSelect: selected.record)
         await vm.load()
-        #expect(vm.lovedOnes.map(\.id) == ["oa-1", "oa-3"])
-        #expect(vm.lovedOnes.map(vm.subtitle(for:)) == ["Score 76", "No score yet"])
+        #expect(vm.lovedOnes.map(\.id) == ["oa-1", "oa-2", "oa-4", "oa-3"])
+        #expect(vm.lovedOnes.map(vm.subtitle(for:)) == [
+            "Last check-in Today, 08:00", "Last check-in Yesterday, 09:00", "Last check-in 13 Jan, 09:00",
+            "No check-in yet",
+        ])
         vm.select(vm.lovedOnes[1])
-        #expect(selected.values == ["oa-3"])
+        #expect(selected.values == ["oa-2"])
     }
 
     @Test func failureShowsError() async {
         await store.setFailing(true)
-        let vm = LovedOnesViewModel(getLovedOnes: GetLovedOnes(olderAdults: store), onSelect: { _ in })
+        let vm = makeVM()
         await vm.load()
         #expect(vm.errorMessage == DisplayText.genericError)
     }
@@ -31,7 +44,8 @@ import Testing
 
     func makeVM(_ id: String = "oa-1") -> StatusViewModel {
         StatusViewModel(olderAdultId: id, getStatus: GetLovedOneStatus(olderAdults: store),
-                        onEditNeighbour: edit.record, onTimeline: timeline.record)
+                        getScoreHistory: GetScoreHistory(olderAdults: store), time: FixedTimeProvider(t0),
+                        timeZone: TimeZone(identifier: "UTC")!, onEditNeighbour: edit.record, onTimeline: timeline.record)
     }
 
     @Test func loadsStatus() async {
@@ -42,6 +56,21 @@ import Testing
         #expect(vm.adult?.latestScore == 76)
         #expect(vm.neighbourText == "1st level: Alex Brown")
         #expect(vm.scoreCaption == "Current score")
+        #expect(vm.band == .good && vm.neighbourName == "Alex Brown")
+        #expect(vm.neighbourCaption == "1st level neighbour")
+        #expect(vm.lastCheckInText == "No check-in yet")
+        #expect(!vm.showsTrend)
+    }
+
+    @Test func loadsLastCheckInAndTrend() async throws {
+        try await store.recordScore(olderAdultId: "oa-1", score: 72, at: t0.addingTimeInterval(-86_400))
+        try await store.recordScore(olderAdultId: "oa-1", score: 64, at: t0.addingTimeInterval(-3600))
+        let vm = makeVM()
+        await vm.load()
+        #expect(vm.lastCheckInText == "Last check-in Today, 08:00")
+        #expect(vm.band == .mild)
+        #expect(vm.showsTrend && vm.history.map(\.score) == [72, 64])
+        #expect(vm.trendAccessibilityText == "Recent check-ins: 72, 64")
     }
 
     @Test func navigationIntents() {
@@ -143,6 +172,7 @@ import Testing
         #expect(vm.rows.map(\.title) == ["Score 38", "Recovered"])
         #expect(vm.rows.map(\.time) == ["06:00", "09:00"])
         #expect(vm.rows.map(\.severity) == [.critical, .ok])
+        #expect(vm.rows.map(\.kind) == [.score(38), .careOutcome(.recovered)])
         #expect(vm.rows.map(\.testID) == ["timeline.event.0", "timeline.event.1"])
         #expect(!vm.isEmpty)
     }

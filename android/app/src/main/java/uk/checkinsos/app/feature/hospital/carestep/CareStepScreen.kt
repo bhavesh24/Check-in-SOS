@@ -22,7 +22,7 @@ fun CareStepScreen(viewModel: CareStepViewModel, onBack: () -> Unit, onNext: (Ca
 fun CareStepContent(state: CareStepUiState, onBack: () -> Unit, onChoose: (CareStep.Answer) -> Unit) {
     val answers = state.step.answers
     FlowScreen(
-        title = "Help",
+        title = state.step.title,
         onBack = onBack,
         step = state.step.stepNumber,
         totalSteps = state.totalSteps,

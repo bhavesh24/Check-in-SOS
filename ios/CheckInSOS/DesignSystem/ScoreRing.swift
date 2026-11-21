@@ -6,10 +6,18 @@ struct ScoreRing: View {
     let score: Int
     let band: ScoreBand
 
-    @ScaledMetric(relativeTo: .largeTitle) private var diameter: CGFloat = 200
-    @ScaledMetric(relativeTo: .largeTitle) private var numberSize: CGFloat = 64
+    @ScaledMetric private var diameter: CGFloat
+    @ScaledMetric private var numberSize: CGFloat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var progress: Double = 0
+
+    /// - Parameter size: diameter at the default text size; it grows with Dynamic Type.
+    init(score: Int, band: ScoreBand, size: CGFloat = 200) {
+        self.score = score
+        self.band = band
+        _diameter = ScaledMetric(wrappedValue: size, relativeTo: .largeTitle)
+        _numberSize = ScaledMetric(wrappedValue: size * 0.32, relativeTo: .largeTitle)
+    }
 
     var body: some View {
         let lineWidth = diameter * 0.09
@@ -25,7 +33,9 @@ struct ScoreRing: View {
                     .font(.system(size: numberSize, weight: .bold, design: .rounded))
                     .monospacedDigit()
                 Text("out of 100")
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .foregroundStyle(Theme.secondaryText)
             }
             .foregroundStyle(Theme.text)

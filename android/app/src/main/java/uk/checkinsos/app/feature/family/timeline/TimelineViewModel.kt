@@ -21,7 +21,7 @@ class TimelineViewModel(
         viewModelScope.launch {
             try {
                 val rows = getTimeline(olderAdultId).mapIndexed { index, event ->
-                    TimelineRowState(event.id, index, event.kind.title, formatter.format(event.date), event.kind.severity)
+                    TimelineRowState(event.id, index, event.kind.title, formatter.format(event.date), event.kind.severity, event.kind)
                 }
                 setState { it.copy(rows = rows, isLoaded = true, errorMessage = null) }
             } catch (e: Exception) {

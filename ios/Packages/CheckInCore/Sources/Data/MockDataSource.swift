@@ -7,12 +7,20 @@ public actor MockDataSource {
     private var olderAdults: [OlderAdult]
     private var alerts: [String: Alert] = [:]
     private var events: [TimelineEvent] = []
+    private var scores: [String: [ScoreRecord]] = [:]
     private var nextAlertId = 1
     private var nextEventId = 1
 
     /// - Parameter now: reference time the seeded timeline is relative to.
     public init(now: Date = MockFixtures.fixedNow) {
         olderAdults = MockFixtures.olderAdults()
+        for seed in MockFixtures.scoreHistory() {
+            scores[seed.olderAdultId, default: []].append(
+                ScoreRecord(score: seed.score, date: now.addingTimeInterval(-Double(seed.minutesBefore) * 60)))
+        }
+        for index in olderAdults.indices {
+            olderAdults[index].lastCheckIn = scores[olderAdults[index].id]?.last?.date
+        }
         let seeds = MockFixtures.timeline()
         events = seeds.enumerated().map { index, seed in
             TimelineEvent(id: "event-\(index + 1)", olderAdultId: seed.olderAdultId,
@@ -34,6 +42,19 @@ public actor MockDataSource {
         guard let index = olderAdults.firstIndex(where: { $0.id == id }) else { throw DomainError.notFound(id) }
         change(&olderAdults[index])
         return olderAdults[index]
+    }
+
+    func recordScore(olderAdultId: String, score: Int, at date: Date) throws {
+        _ = try mutateOlderAdult(id: olderAdultId) {
+            $0.latestScore = score
+            $0.lastCheckIn = date
+        }
+        scores[olderAdultId, default: []].append(ScoreRecord(score: score, date: date))
+    }
+
+    func scoreHistory(olderAdultId: String) throws -> [ScoreRecord] {
+        _ = try olderAdult(id: olderAdultId)
+        return scores[olderAdultId] ?? []
     }
 
     // MARK: Patients

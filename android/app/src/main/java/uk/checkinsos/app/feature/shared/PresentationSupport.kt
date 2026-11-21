@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.update
 import uk.checkinsos.domain.model.Alert
 import uk.checkinsos.domain.model.AlertRecipient
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /** The parts of an [Alert] the help flows need; travels through navigation routes as primitives. */
 data class AlertSummary(
@@ -39,6 +42,30 @@ object DisplayText {
 
     /** "Score 76" / "No score yet" — list row subtitles. */
     fun score(score: Int?): String = if (score == null) "No score yet" else "Score $score"
+
+    /** "Last check-in Today, 08:00" / "No check-in yet". */
+    fun lastCheckIn(date: Instant?, now: Instant, zone: ZoneId): String =
+        if (date == null) "No check-in yet" else "Last check-in ${checkIn(date, now, zone)}"
+
+    /** "Today, 08:00", "Yesterday, 08:00", otherwise "13 Jan, 08:00". */
+    fun checkIn(date: Instant, now: Instant, zone: ZoneId): String {
+        val day = date.atZone(zone).toLocalDate()
+        val today = now.atZone(zone).toLocalDate()
+        val time = DateTimeFormatter.ofPattern("HH:mm", Locale.UK).withZone(zone).format(date)
+        return when (day) {
+            today -> "Today, $time"
+            today.minusDays(1) -> "Yesterday, $time"
+            else -> DateTimeFormatter.ofPattern("d MMM, HH:mm", Locale.UK).withZone(zone).format(date)
+        }
+    }
+
+    /** "Margaret Wilson" → "MW"; a single name gives one letter. */
+    fun initials(name: String): String {
+        val parts = name.split(' ').filter { it.isNotEmpty() }
+        return listOfNotNull(parts.firstOrNull(), parts.drop(1).lastOrNull())
+            .map { it.first().uppercaseChar() }
+            .joinToString("")
+    }
 
     /** `mm:ss`, or "Time expired" once the deadline has passed. */
     fun countdown(seconds: Long): String =

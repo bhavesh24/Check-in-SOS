@@ -10,15 +10,9 @@ struct TimelineView: View {
             }
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(viewModel.rows) { row in
-                    TimelineRow(title: row.title, time: row.time, severity: row.severity)
+                    TimelineRow(title: row.title, time: row.time, kind: row.kind,
+                                isFirst: row.index == 0, isLast: row.index == viewModel.rows.count - 1)
                         .accessibilityIdentifier(row.testID)
-                    if row.index < viewModel.rows.count - 1 {
-                        Rectangle()
-                            .fill(Theme.disabledBackground)
-                            .frame(width: 2, height: 16)
-                            .padding(.leading, 10)
-                            .accessibilityHidden(true)
-                    }
                 }
             }
         } actions: {

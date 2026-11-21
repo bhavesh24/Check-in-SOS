@@ -1,4 +1,5 @@
 import Domain
+import Foundation
 import Observation
 
 @MainActor @Observable
@@ -7,10 +8,14 @@ final class LovedOnesViewModel {
     private(set) var errorMessage: String?
 
     private let getLovedOnes: GetLovedOnes
+    private let time: any TimeProvider
+    private let timeZone: TimeZone
     private let onSelect: (String) -> Void
 
-    init(getLovedOnes: GetLovedOnes, onSelect: @escaping (String) -> Void) {
+    init(getLovedOnes: GetLovedOnes, time: any TimeProvider, timeZone: TimeZone, onSelect: @escaping (String) -> Void) {
         self.getLovedOnes = getLovedOnes
+        self.time = time
+        self.timeZone = timeZone
         self.onSelect = onSelect
     }
 
@@ -23,7 +28,10 @@ final class LovedOnesViewModel {
         }
     }
 
-    func subtitle(for adult: OlderAdult) -> String { DisplayText.score(adult.latestScore) }
+    /// "Last check-in Today, 08:00" / "No check-in yet".
+    func subtitle(for adult: OlderAdult) -> String {
+        DisplayText.lastCheckIn(adult.lastCheckIn, now: time.now(), timeZone: timeZone)
+    }
 
     func select(_ adult: OlderAdult) { onSelect(adult.id) }
 }

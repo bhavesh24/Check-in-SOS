@@ -13,8 +13,12 @@ public struct OlderAdultRepositoryImpl: OlderAdultRepository {
         try await source.mutateOlderAdult(id: olderAdultId) { $0.neighbour = neighbour }
     }
 
-    public func recordScore(olderAdultId: String, score: Int) async throws {
-        _ = try await source.mutateOlderAdult(id: olderAdultId) { $0.latestScore = score }
+    public func recordScore(olderAdultId: String, score: Int, at date: Date) async throws {
+        try await source.recordScore(olderAdultId: olderAdultId, score: score, at: date)
+    }
+
+    public func scoreHistory(olderAdultId: String) async throws -> [ScoreRecord] {
+        try await source.scoreHistory(olderAdultId: olderAdultId)
     }
 }
 

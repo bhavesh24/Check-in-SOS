@@ -6,6 +6,7 @@ import uk.checkinsos.domain.model.AlertStatus
 import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.OlderAdult
 import uk.checkinsos.domain.model.Patient
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEvent
 import uk.checkinsos.domain.model.TimelineEventKind
 import java.time.Instant
@@ -16,7 +17,11 @@ interface OlderAdultRepository {
     suspend fun neighbours(): List<OlderAdult>
     suspend fun olderAdult(id: String): OlderAdult
     suspend fun updateNeighbour(olderAdultId: String, neighbour: Neighbour): OlderAdult
-    suspend fun recordScore(olderAdultId: String, score: Int)
+    /** Stores a check-in: updates the latest score and last check-in, and appends to the score history. */
+    suspend fun recordScore(olderAdultId: String, score: Int, date: Instant)
+
+    /** Past check-ins, in any order. */
+    suspend fun scoreHistory(olderAdultId: String): List<ScoreRecord>
 }
 
 interface PatientRepository {

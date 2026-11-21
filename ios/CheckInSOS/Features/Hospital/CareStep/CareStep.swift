@@ -13,6 +13,15 @@ enum CareStep: String, CaseIterable, Hashable, Sendable {
         let next: CareStep?
     }
 
+    var title: String {
+        switch self {
+        case .inCare: "In care"
+        case .recovering, .recovered: "Recovery"
+        case .badCondition: "Condition"
+        case .patientAlive: "Patient status"
+        }
+    }
+
     var heading: String {
         switch self {
         case .inCare: "Have you taken them in your care?"

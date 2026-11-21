@@ -14,7 +14,7 @@ import Testing
         let vm = NeighboursViewModel(getNeighbours: GetNeighbours(olderAdults: store), simulateAlert: simulate,
                                      onAlert: alerts.record)
         await vm.load()
-        #expect(vm.neighbours.map(vm.subtitle(for:)) == ["Score 76", "Score 38"])
+        #expect(vm.neighbours.map(\.latestScore) == [76, 38])
         await vm.simulate()
         #expect(alerts.values.map(\.subjectName) == ["Arthur Patel"])
         #expect(alerts.values.first?.recipient == .neighbour)
@@ -27,7 +27,7 @@ import Testing
         let vm = PatientsViewModel(getPatients: GetPatients(patients: store), simulateAlert: simulate,
                                    onAlert: alerts.record)
         await vm.load()
-        #expect(vm.patients.map(vm.subtitle(for:)) == ["Score 38"])
+        #expect(vm.patients.map(\.latestScore) == [38])
         await vm.simulate()
         #expect(alerts.values.first?.recipient == .hospital)
     }
@@ -60,7 +60,12 @@ import Testing
                                     time: clock, onAccepted: accepted.record)
         #expect(vm.message == "Your neighbour Arthur Patel needs your help, please acknowledge the notification")
         #expect(vm.idPrefix == "alert" && vm.step == 1 && vm.totalSteps == 4)
-        #expect(vm.countdownText == "20:00")
+        #expect(vm.countdownText == "20:00" && vm.countdownProgress == 1)
+        #expect(vm.title == "Urgent alert" && vm.bannerText == "Urgent: someone needs help now")
+        #expect(vm.countdownCaption == "left to respond")
+        clock.date = t0.addingTimeInterval(600)
+        vm.tick()
+        #expect(vm.countdownText == "10:00" && vm.countdownProgress == 0.5)
         clock.date = t0.addingTimeInterval(61)
         vm.tick()
         #expect(vm.countdownText == "18:59")
@@ -68,7 +73,7 @@ import Testing
         #expect(vm.countdownText == "18:59")
         clock.date = t0.addingTimeInterval(3600)
         vm.tick()
-        #expect(vm.countdownText == "Time expired")
+        #expect(vm.countdownText == "Time expired" && vm.countdownProgress == 0)
 
         await vm.accept()
         #expect(accepted.values == [summary])
@@ -178,6 +183,7 @@ import Testing
 
     @Test func stepTableMatchesSpec() {
         #expect(CareStep.allCases.map(\.stepNumber) == [2, 3, 4, 4, 5])
+        #expect(CareStep.allCases.map(\.title) == ["In care", "Recovery", "Recovery", "Condition", "Patient status"])
         #expect(CareStep.inCare.heading == "Have you taken them in your care?")
         #expect(CareStep.recovering.heading == "Are they recovering?")
         #expect(CareStep.recovered.heading == "Have they recovered?")

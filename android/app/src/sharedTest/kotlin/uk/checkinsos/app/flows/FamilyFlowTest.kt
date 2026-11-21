@@ -8,6 +8,7 @@ class FamilyFlowTest : FlowTest() {
             .assertLovedOnesShown()
             .openStatus("oa-1", "Margaret Wilson")
             .assertStatus("Score 76 out of 100", "Alex Brown")
+            .assertCheckIns("Last check-in Today, 08:00", "Recent check-ins: 72, 70, 74, 68, 73, 78, 76")
     }
 
     @Test fun editNeighbourSavesAndStatusShowsNewName() {
@@ -63,6 +64,7 @@ class FamilyFlowTest : FlowTest() {
         val robot = home.chooseFamily()
             .openStatus("oa-3", "Edith Clarke")
             .assertStatus("No score yet", "Tom Hughes")
+            .assertCheckIns("No check-in yet", null)
             .openTimeline()
         robot.assertText("timeline.empty", "No events yet")
         robot.assertMissing("timeline.event.0")

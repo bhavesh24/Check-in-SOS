@@ -45,7 +45,7 @@ class NeighboursAndPatientsViewModelTest {
         val vm = NeighboursViewModel(GetNeighbours(store), simulate)
         val events = collect(vm.events)
         vm.load()
-        assertEquals(listOf("Score 76", "Score 38"), vm.state.value.neighbours.map(vm.state.value::subtitle))
+        assertEquals(listOf(76, 38), vm.state.value.neighbours.map { it.latestScore })
         vm.simulate()
         val alert = events.single().alert
         assertEquals("Arthur Patel", alert.subjectName)
@@ -58,7 +58,7 @@ class NeighboursAndPatientsViewModelTest {
         val vm = PatientsViewModel(GetPatients(store), simulate)
         val events = collect(vm.events)
         vm.load()
-        assertEquals(listOf("Score 38"), vm.state.value.patients.map(vm.state.value::subtitle))
+        assertEquals(listOf(38), vm.state.value.patients.map { it.latestScore })
         vm.simulate()
         assertEquals(AlertRecipient.HOSPITAL, events.single().alert.recipient)
     }
@@ -92,6 +92,14 @@ class HelpAlertViewModelTest {
         assertEquals(1, state.step)
         assertEquals(4, state.totalSteps)
         assertEquals("20:00", state.countdownText)
+        assertEquals(1f, state.countdownProgress)
+        assertEquals("Urgent alert", state.title)
+        assertEquals("Urgent: someone needs help now", state.bannerText)
+        assertEquals("left to respond", state.countdownCaption)
+        clock.instant = T0.plusSeconds(600)
+        vm.tick()
+        assertEquals("10:00", vm.state.value.countdownText)
+        assertEquals(0.5f, vm.state.value.countdownProgress)
         clock.instant = T0.plusSeconds(61)
         vm.tick()
         assertEquals("18:59", vm.state.value.countdownText)
@@ -99,6 +107,7 @@ class HelpAlertViewModelTest {
         clock.instant = T0.plusSeconds(3600)
         vm.tick()
         assertEquals("Time expired", vm.state.value.countdownText)
+        assertEquals(0f, vm.state.value.countdownProgress)
 
         vm.accept()
         assertEquals(listOf(HelpAlertViewModel.Event(summary)), events)
@@ -220,6 +229,7 @@ class CareStepViewModelTest {
             ),
             CareStep.entries.map { it.heading },
         )
+        assertEquals(listOf("In care", "Recovery", "Recovery", "Condition", "Patient status"), CareStep.entries.map { it.title })
         assertEquals(
             listOf(
                 "inCare.yes", "recovering.yes", "recovering.no", "recovered.yes",

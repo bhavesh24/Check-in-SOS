@@ -24,6 +24,18 @@ public struct UpdateNeighbour: Sendable {
     }
 }
 
+/// The most recent check-in scores (at most `GetScoreHistory.limit`), oldest first, for the trend chart.
+public struct GetScoreHistory: Sendable {
+    public static let limit = 7
+
+    let olderAdults: any OlderAdultRepository
+    public init(olderAdults: any OlderAdultRepository) { self.olderAdults = olderAdults }
+    public func callAsFunction(olderAdultId: String) async throws -> [ScoreRecord] {
+        let sorted = try await olderAdults.scoreHistory(olderAdultId: olderAdultId).sorted { $0.date < $1.date }
+        return Array(sorted.suffix(Self.limit))
+    }
+}
+
 /// Timeline events, oldest first.
 public struct GetTimeline: Sendable {
     let timeline: any TimelineRepository

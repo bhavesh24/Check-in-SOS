@@ -1,20 +1,28 @@
 import Domain
 import SwiftUI
 
-/// One timeline event: coloured ring, copy and HH:mm time. At accessibility text sizes the time moves
-/// under the copy so nothing is truncated.
+/// One timeline event: an icon badge in the event's colour, the copy and the HH:mm time. A line joins the
+/// badges of neighbouring rows. At accessibility text sizes the time moves under the copy.
 struct TimelineRow: View {
     let title: String
     let time: String
-    let severity: TimelineSeverity
+    let kind: TimelineEventKind
+    var isFirst = false
+    var isLast = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .body) private var badgeSize: CGFloat = 36
+
+    /// Grows a little with Dynamic Type, but is capped so the copy keeps the room at the largest sizes.
+    private var badge: CGFloat { min(badgeSize, 44) }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Circle()
-                .stroke(Theme.color(for: severity), lineWidth: 4)
-                .frame(width: 22, height: 22)
-                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 6 }
+        HStack(spacing: 12) {
+            Image(systemName: kind.systemImage)
+                .font(.subheadline.weight(.semibold))
+                .dynamicTypeSize(...DynamicTypeSize.xxLarge)
+                .foregroundStyle(Theme.onRole)
+                .frame(width: badge, height: badge)
+                .background(Theme.color(for: kind.severity), in: Circle())
                 .accessibilityHidden(true)
             AdaptiveStack(vertical: dynamicTypeSize.isAccessibilitySize) {
                 Text(title)
@@ -28,8 +36,17 @@ struct TimelineRow: View {
                     .fixedSize()
             }
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .frame(minHeight: Theme.minTouchTarget)
+        .background(alignment: .leading) {
+            VStack(spacing: 0) {
+                Rectangle().fill(isFirst ? .clear : Theme.cardBorder)
+                Rectangle().fill(isLast ? .clear : Theme.cardBorder)
+            }
+            .frame(width: 2)
+            .padding(.leading, badge / 2 - 1)
+            .accessibilityHidden(true)
+        }
         .accessibilityElement(children: .combine)
     }
 }
@@ -43,5 +60,26 @@ struct AdaptiveStack<Content: View>: View {
         let layout = vertical ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
                               : AnyLayout(HStackLayout(spacing: 8))
         layout { content }
+    }
+}
+
+private extension TimelineEventKind {
+    var systemImage: String {
+        switch self {
+        case .score: "heart.text.square.fill"
+        case .missedCheckIn: "clock.badge.exclamationmark"
+        case .notificationSent: "bell.fill"
+        case .acknowledged: "hand.raised.fill"
+        case .neighbourReached: "figure.walk"
+        case .escalated: "exclamationmark.triangle.fill"
+        case .careOutcome(let outcome):
+            switch outcome {
+            case .inCare: "cross.case.fill"
+            case .recovering: "arrow.up.heart.fill"
+            case .allOk, .recovered, .alive: "checkmark.seal.fill"
+            case .badCondition: "exclamationmark.triangle.fill"
+            case .deceased: "heart.slash.fill"
+            }
+        }
     }
 }

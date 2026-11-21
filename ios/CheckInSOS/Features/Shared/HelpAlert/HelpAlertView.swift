@@ -6,19 +6,17 @@ struct HelpAlertView: View {
 
     var body: some View {
         FlowScreen(step: viewModel.step, totalSteps: viewModel.totalSteps, errorMessage: viewModel.errorMessage) {
+            UrgentBanner(text: viewModel.bannerText)
             MessageText(viewModel.message, testID: "\(viewModel.idPrefix).message")
-            Text(viewModel.countdownText)
-                .font(.system(.largeTitle, design: .rounded).weight(.bold).monospacedDigit())
-                .foregroundStyle(Theme.statusCritical)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("\(viewModel.idPrefix).countdown")
+            CountdownRing(text: viewModel.countdownText, progress: viewModel.countdownProgress,
+                          caption: viewModel.countdownCaption, testID: "\(viewModel.idPrefix).countdown")
         } actions: {
             Button("Accept") { Task { await viewModel.accept() } }
                 .buttonStyle(.primary)
                 .disabled(viewModel.isBusy)
                 .accessibilityIdentifier("\(viewModel.idPrefix).accept")
         }
-        .navigationTitle("Help")
+        .navigationTitle(viewModel.title)
         .withBackButton()
         .task {
             while !Task.isCancelled {

@@ -3,6 +3,7 @@ package uk.checkinsos.domain.usecase
 import uk.checkinsos.domain.model.DomainException
 import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.OlderAdult
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEvent
 import uk.checkinsos.domain.repository.OlderAdultRepository
 import uk.checkinsos.domain.repository.TimelineRepository
@@ -24,6 +25,16 @@ class UpdateNeighbour(private val olderAdults: OlderAdultRepository) {
             is NeighbourValidator.Result.Invalid -> throw DomainException.InvalidNeighbour(result.error)
             is NeighbourValidator.Result.Valid -> olderAdults.updateNeighbour(olderAdultId, result.neighbour)
         }
+}
+
+/** The most recent check-in scores (at most [LIMIT]), oldest first, for the trend chart. */
+class GetScoreHistory(private val olderAdults: OlderAdultRepository) {
+    suspend operator fun invoke(olderAdultId: String): List<ScoreRecord> =
+        olderAdults.scoreHistory(olderAdultId).sortedBy { it.date }.takeLast(LIMIT)
+
+    companion object {
+        const val LIMIT = 7
+    }
 }
 
 /** Timeline events, oldest first. */

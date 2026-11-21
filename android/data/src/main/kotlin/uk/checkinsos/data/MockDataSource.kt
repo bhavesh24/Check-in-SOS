@@ -7,6 +7,7 @@ import uk.checkinsos.domain.model.AlertStatus
 import uk.checkinsos.domain.model.DomainException
 import uk.checkinsos.domain.model.OlderAdult
 import uk.checkinsos.domain.model.Patient
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEvent
 import uk.checkinsos.domain.model.TimelineEventKind
 import java.time.Duration
@@ -20,7 +21,13 @@ import java.time.Instant
  */
 class MockDataSource(now: Instant = MockFixtures.FIXED_NOW) {
     private val mutex = Mutex()
-    private val olderAdults = MockFixtures.olderAdults().toMutableList()
+    private val scores: MutableMap<String, MutableList<ScoreRecord>> = MockFixtures.scoreHistory()
+        .groupByTo(mutableMapOf(), { it.olderAdultId }) {
+            ScoreRecord(it.score, now.minus(Duration.ofMinutes(it.minutesBefore)))
+        }
+    private val olderAdults = MockFixtures.olderAdults()
+        .map { it.copy(lastCheckIn = scores[it.id]?.lastOrNull()?.date) }
+        .toMutableList()
     private val alerts = linkedMapOf<String, Alert>()
     private val events: MutableList<TimelineEvent> = MockFixtures.timeline().mapIndexed { index, seed ->
         TimelineEvent("event-${index + 1}", seed.olderAdultId, now.minus(Duration.ofMinutes(seed.minutesBefore)), seed.kind)
@@ -38,6 +45,18 @@ class MockDataSource(now: Instant = MockFixtures.FIXED_NOW) {
         val index = olderAdults.indexOfFirst { it.id == id }
         if (index < 0) throw DomainException.NotFound(id)
         change(olderAdults[index]).also { olderAdults[index] = it }
+    }
+
+    suspend fun recordScore(olderAdultId: String, score: Int, date: Instant) = mutex.withLock {
+        val index = olderAdults.indexOfFirst { it.id == olderAdultId }
+        if (index < 0) throw DomainException.NotFound(olderAdultId)
+        olderAdults[index] = olderAdults[index].copy(latestScore = score, lastCheckIn = date)
+        scores.getOrPut(olderAdultId) { mutableListOf() }.add(ScoreRecord(score, date))
+    }
+
+    suspend fun scoreHistory(olderAdultId: String): List<ScoreRecord> = mutex.withLock {
+        findOlderAdult(olderAdultId)
+        scores[olderAdultId].orEmpty().toList()
     }
 
     // Patients

@@ -8,6 +8,7 @@ class FamilyRobot(rule: ComposeTestRule) : Robot(rule) {
     fun assertLovedOnesShown() = apply {
         assertTitle("Your loved ones")
         waitFor("lovedOnes.row.oa-1").assertTextContains("Margaret Wilson").assertTextContains("Score 76")
+            .assertTextContains("Last check-in Today, 08:00")
         waitFor("lovedOnes.row.oa-2").assertTextContains("Score 38")
         waitFor("lovedOnes.row.oa-3").assertTextContains("No score yet")
     }
@@ -20,6 +21,12 @@ class FamilyRobot(rule: ComposeTestRule) : Robot(rule) {
     fun assertStatus(scoreLabel: String, neighbour: String) = apply {
         assertLabel("status.score", scoreLabel)
         assertText("status.neighbour", "1st level: $neighbour")
+    }
+
+    /** "Last check-in …" line, and the trend chart's label (null when it is hidden). */
+    fun assertCheckIns(lastCheckIn: String, trend: String?) = apply {
+        assertText("status.lastCheckIn", lastCheckIn)
+        if (trend != null) assertLabel("status.trend", trend) else assertMissing("status.trend")
     }
 
     fun editNeighbour() = apply {

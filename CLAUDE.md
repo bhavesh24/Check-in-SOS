@@ -18,7 +18,7 @@ This file holds what you need day to day.
 
 Rules:
 - Domain never imports UI frameworks or the Data layer. Repositories are protocols/interfaces in Domain, and Data implements them.
-- **Use cases do one action each** (`SubmitAssessment`, `GetLovedOnes`, `GetLovedOneStatus`, `UpdateNeighbour`, `GetTimeline`, `GetNeighbours`, `GetPatients`, `SimulateAlert`, `AcknowledgeAlert`, `MarkArrived`, `EscalateAlert`, `RecordCareOutcome`).
+- **Use cases do one action each** (`SubmitAssessment`, `GetLovedOnes`, `GetLovedOneStatus`, `UpdateNeighbour`, `GetScoreHistory`, `GetTimeline`, `GetNeighbours`, `GetPatients`, `SimulateAlert`, `AcknowledgeAlert`, `MarkArrived`, `EscalateAlert`, `RecordCareOutcome`).
   - Swift calls them with `callAsFunction`; Kotlin uses `operator fun invoke`.
   - Repositories and use cases are `async throws` on iOS and `suspend` on Android.
 - **Domain services:**
@@ -100,8 +100,8 @@ python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
   - Test fakes.
   - Every addition must be documented in the README ("Coverage exclusions" table).
 - Current status: iOS overall 99.4% and UI-only presentation 98.7%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
-- Android test counts: 34 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), 3 JVM-only landscape/rotation tests, plus the domain and data tests.
-- iOS test counts: 36 ViewModel tests, 26 domain, 6 data, and 26 XCUITests (6 of them run `performAccessibilityAudit()`, 3 run in landscape).
+- Android test counts: 35 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), 3 JVM-only landscape/rotation tests, plus the domain and data tests.
+- iOS test counts: 37 ViewModel tests, 27 domain, 7 data, and 26 XCUITests (6 of them run `performAccessibilityAudit()`, 3 run in landscape).
 
 ## Status
 - [x] **Phase 1, foundation:**

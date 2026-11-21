@@ -12,6 +12,8 @@ import Testing
         let result = try await submit(olderAdultId: "oa-1", assessment: Assessment(physical: .good, mood: .pleasant))
         #expect(result == AssessmentResult(score: 76, neighbourNotified: false))
         #expect(try await store.olderAdult(id: "oa-1").latestScore == 76)
+        #expect(try await store.olderAdult(id: "oa-1").lastCheckIn == t0)
+        #expect(await store.history == [ScoreRecord(score: 76, date: t0)])
         #expect(await store.kinds() == [.score(76)])
         #expect(await store.alerts.isEmpty)
     }
@@ -50,6 +52,15 @@ import Testing
             try await update(olderAdultId: "oa-1", neighbour: Neighbour(
                 firstName: "Sam", lastName: "Lee", email: "nope", mobile: "07700900999"))
         }
+    }
+
+    @Test func scoreHistoryIsTheLatestSevenOldestFirst() async throws {
+        for day in (0..<9).reversed() {
+            try await store.recordScore(olderAdultId: "oa-1", score: 60 + day, at: t0.addingTimeInterval(-Double(day) * 86_400))
+        }
+        let history = try await GetScoreHistory(olderAdults: store)(olderAdultId: "oa-1")
+        #expect(history.map(\.score) == [66, 65, 64, 63, 62, 61, 60])
+        #expect(history.last?.date == t0)
     }
 
     @Test func timelineIsSortedOldestFirst() async throws {

@@ -39,7 +39,7 @@ fun AliveScreen(viewModel: AliveViewModel, onBack: () -> Unit, onDone: () -> Uni
 fun AliveContent(state: AliveUiState, onBack: () -> Unit, onAnswer: (Boolean) -> Unit) {
     val colors = AppTheme.colors
     FlowScreen(
-        title = "Help",
+        title = "Emergency",
         onBack = onBack,
         step = state.step,
         totalSteps = state.totalSteps,

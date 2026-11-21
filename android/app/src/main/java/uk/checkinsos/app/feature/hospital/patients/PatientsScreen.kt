@@ -1,13 +1,11 @@
 package uk.checkinsos.app.feature.hospital.patients
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uk.checkinsos.app.designsystem.FlowScreen
+import uk.checkinsos.app.designsystem.GroupedList
 import uk.checkinsos.app.designsystem.PersonRow
 import uk.checkinsos.app.designsystem.PrimaryButton
 import uk.checkinsos.app.feature.shared.AlertSummary
@@ -29,10 +27,8 @@ fun PatientsContent(state: PatientsUiState, onBack: () -> Unit, onSimulate: () -
         errorMessage = state.errorMessage,
         actions = { PrimaryButton("Simulate alert", "patients.simulateAlert", onClick = onSimulate, enabled = !state.isBusy) },
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            state.patients.forEach { patient ->
-                PersonRow(patient.name, state.subtitle(patient), "patients.row.${patient.id}")
-            }
+        GroupedList(state.patients) { patient ->
+            PersonRow(patient.name, patient.latestScore, "patients.row.${patient.id}")
         }
     }
 }

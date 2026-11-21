@@ -44,7 +44,7 @@ fun EscalateScreen(
 @Composable
 fun EscalateContent(state: EscalateUiState, onBack: () -> Unit, actions: EscalateActions) {
     FlowScreen(
-        title = "Help",
+        title = "Escalate",
         onBack = onBack,
         step = state.step,
         totalSteps = state.totalSteps,

@@ -16,7 +16,7 @@ public struct SubmitAssessment: Sendable {
     public func callAsFunction(olderAdultId: String, assessment: Assessment) async throws -> AssessmentResult {
         let score = ScoreCalculator.score(assessment)
         let now = time.now()
-        try await olderAdults.recordScore(olderAdultId: olderAdultId, score: score)
+        try await olderAdults.recordScore(olderAdultId: olderAdultId, score: score, at: now)
         try await timeline.append(olderAdultId: olderAdultId, kind: .score(score), date: now)
 
         guard EscalationPolicy.shouldAlert(score: score),

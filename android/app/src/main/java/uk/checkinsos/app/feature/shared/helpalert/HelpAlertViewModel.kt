@@ -16,14 +16,21 @@ class HelpAlertViewModel(
     private val acknowledgeAlert: AcknowledgeAlert,
     private val time: TimeProvider,
 ) : FlowViewModel<HelpAlertUiState, HelpAlertViewModel.Event>(
-    HelpAlertUiState(alert, countdown(alert, time.now())),
+    HelpAlertUiState(alert, countdown(alert, time.now()), if (secondsLeft(alert, time.now()) > 0) 1f else 0f),
 ) {
     data class Event(val alert: AlertSummary)
 
+    /** Seconds left when the screen opened: the full ring. */
+    private val initialSeconds = secondsLeft(alert, time.now())
+
     /** Called once a second by the screen. */
     fun tick() {
-        val text = countdown(currentState.alert, time.now())
-        if (text != currentState.countdownText) setState { it.copy(countdownText = text) }
+        val now = time.now()
+        val text = countdown(currentState.alert, now)
+        val progress = if (initialSeconds > 0) secondsLeft(currentState.alert, now).toFloat() / initialSeconds else 0f
+        if (text != currentState.countdownText || progress != currentState.countdownProgress) {
+            setState { it.copy(countdownText = text, countdownProgress = progress) }
+        }
     }
 
     fun accept() {
@@ -41,9 +48,11 @@ class HelpAlertViewModel(
     }
 
     companion object {
-        fun countdown(alert: AlertSummary, now: Instant): String {
+        fun countdown(alert: AlertSummary, now: Instant): String = DisplayText.countdown(secondsLeft(alert, now))
+
+        fun secondsLeft(alert: AlertSummary, now: Instant): Long {
             val millis = Duration.between(now, alert.acknowledgeBy).toMillis()
-            return DisplayText.countdown(if (millis <= 0) 0 else (millis + 999) / 1000)
+            return if (millis <= 0) 0 else (millis + 999) / 1000
         }
     }
 }

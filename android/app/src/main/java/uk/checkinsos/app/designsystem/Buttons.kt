@@ -12,6 +12,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,8 +23,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PrimaryButton(text: String, testTag: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val colors = AppTheme.colors
+    val haptics = LocalHapticFeedback.current
     Button(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+            onClick()
+        },
         enabled = enabled,
         shape = RoundedCornerShape(Dimens.cornerRadius),
         colors = ButtonDefaults.buttonColors(
@@ -40,8 +46,12 @@ fun PrimaryButton(text: String, testTag: String, onClick: () -> Unit, modifier: 
 @Composable
 fun SecondaryButton(text: String, testTag: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val colors = AppTheme.colors
+    val haptics = LocalHapticFeedback.current
     OutlinedButton(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+            onClick()
+        },
         enabled = enabled,
         shape = RoundedCornerShape(Dimens.cornerRadius),
         border = BorderStroke(2.dp, colors.primary),

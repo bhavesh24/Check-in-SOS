@@ -19,7 +19,7 @@ fun ReachedScreen(viewModel: ReachedViewModel, onBack: () -> Unit, onReached: (A
 @Composable
 fun ReachedContent(state: ReachedUiState, onBack: () -> Unit, onConfirm: () -> Unit) {
     FlowScreen(
-        title = "Help",
+        title = "On your way",
         onBack = onBack,
         step = state.step,
         totalSteps = state.totalSteps,

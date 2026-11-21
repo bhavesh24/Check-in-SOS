@@ -6,6 +6,7 @@ import uk.checkinsos.domain.model.AlertStatus
 import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.OlderAdult
 import uk.checkinsos.domain.model.Patient
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEvent
 import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.repository.AlertRepository
@@ -22,9 +23,11 @@ class OlderAdultRepositoryImpl(private val source: MockDataSource) : OlderAdultR
     override suspend fun updateNeighbour(olderAdultId: String, neighbour: Neighbour): OlderAdult =
         source.mutateOlderAdult(olderAdultId) { it.copy(neighbour = neighbour) }
 
-    override suspend fun recordScore(olderAdultId: String, score: Int) {
-        source.mutateOlderAdult(olderAdultId) { it.copy(latestScore = score) }
+    override suspend fun recordScore(olderAdultId: String, score: Int, date: Instant) {
+        source.recordScore(olderAdultId, score, date)
     }
+
+    override suspend fun scoreHistory(olderAdultId: String): List<ScoreRecord> = source.scoreHistory(olderAdultId)
 }
 
 class PatientRepositoryImpl(private val source: MockDataSource) : PatientRepository {

@@ -1,3 +1,5 @@
+import Foundation
+
 /// A 1st-level notified person (the neighbour contact a family member manages).
 public struct Neighbour: Equatable, Sendable {
     public var firstName: String
@@ -24,12 +26,15 @@ public struct OlderAdult: Equatable, Identifiable, Sendable {
     public var name: String
     /// Latest wellbeing score (0–100), or nil if they have never checked in.
     public var latestScore: Int?
+    /// When they last checked in, or nil if they never have.
+    public var lastCheckIn: Date?
     public var neighbour: Neighbour
 
-    public init(id: String, name: String, latestScore: Int?, neighbour: Neighbour) {
+    public init(id: String, name: String, latestScore: Int?, lastCheckIn: Date? = nil, neighbour: Neighbour) {
         self.id = id
         self.name = name
         self.latestScore = latestScore
+        self.lastCheckIn = lastCheckIn
         self.neighbour = neighbour
     }
 }

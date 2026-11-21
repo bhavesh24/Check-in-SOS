@@ -17,7 +17,7 @@ struct CareStepView: View {
                     .accessibilityIdentifier(answer.testID)
             }
         }
-        .navigationTitle("Help")
+        .navigationTitle(viewModel.step.title)
         .withBackButton()
     }
 }

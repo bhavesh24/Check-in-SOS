@@ -1,6 +1,5 @@
 package uk.checkinsos.domain
 
-import kotlinx.coroutines.test.runTest
 import uk.checkinsos.domain.model.AlertRecipient
 import uk.checkinsos.domain.model.AlertStatus
 import uk.checkinsos.domain.model.Assessment
@@ -12,6 +11,7 @@ import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.NeighbourValidationError
 import uk.checkinsos.domain.model.Patient
 import uk.checkinsos.domain.model.PhysicalWellbeing
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.service.EscalationPolicy
 import uk.checkinsos.domain.service.FixedTimeProvider
@@ -21,6 +21,7 @@ import uk.checkinsos.domain.usecase.GetLovedOneStatus
 import uk.checkinsos.domain.usecase.GetLovedOnes
 import uk.checkinsos.domain.usecase.GetNeighbours
 import uk.checkinsos.domain.usecase.GetPatients
+import uk.checkinsos.domain.usecase.GetScoreHistory
 import uk.checkinsos.domain.usecase.GetTimeline
 import uk.checkinsos.domain.usecase.MarkArrived
 import uk.checkinsos.domain.usecase.RecordCareOutcome
@@ -32,6 +33,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 
 private val time = FixedTimeProvider(T0)
 
@@ -43,6 +45,8 @@ class SubmitAssessmentTest {
         val result = submit("oa-1", Assessment(PhysicalWellbeing.GOOD, Mood.PLEASANT))
         assertEquals(AssessmentResult(76, neighbourNotified = false), result)
         assertEquals(76, store.olderAdult("oa-1").latestScore)
+        assertEquals(T0, store.olderAdult("oa-1").lastCheckIn)
+        assertEquals(listOf(ScoreRecord(76, T0)), store.history)
         assertEquals(listOf<TimelineEventKind>(TimelineEventKind.Score(76)), store.kinds)
         assertTrue(store.alerts.isEmpty())
     }
@@ -79,6 +83,13 @@ class FamilyUseCaseTest {
             update("oa-1", Neighbour(firstName = "Sam", lastName = "Lee", email = "nope", mobile = "07700900999"))
         }
         assertEquals(NeighbourValidationError.INVALID_EMAIL, error.error)
+    }
+
+    @Test fun scoreHistoryIsTheLatestSevenOldestFirst() = runTest {
+        for (day in 8 downTo 0) store.recordScore("oa-1", 60 + day, T0.minusSeconds(day * 86_400L))
+        val history = GetScoreHistory(store)("oa-1")
+        assertEquals(listOf(66, 65, 64, 63, 62, 61, 60), history.map { it.score })
+        assertEquals(T0, history.last().date)
     }
 
     @Test fun timelineIsSortedOldestFirst() = runTest {

@@ -8,6 +8,7 @@ import uk.checkinsos.domain.model.DomainException
 import uk.checkinsos.domain.model.Mood
 import uk.checkinsos.domain.model.Neighbour
 import uk.checkinsos.domain.model.PhysicalWellbeing
+import uk.checkinsos.domain.model.ScoreRecord
 import uk.checkinsos.domain.model.TimelineEventKind
 import uk.checkinsos.domain.service.FixedTimeProvider
 import uk.checkinsos.domain.usecase.SubmitAssessment
@@ -38,6 +39,17 @@ class MockDataTest {
         assertEquals(Instant.parse("2026-01-15T09:00:00Z"), MockFixtures.FIXED_NOW)
     }
 
+    @Test fun seededScoreHistoryEndsAtTheLatestScore() = runTest {
+        val now = MockFixtures.FIXED_NOW
+        val margaret = adults.scoreHistory("oa-1")
+        assertEquals(listOf(72, 70, 74, 68, 73, 78, 76), margaret.map { it.score })
+        assertEquals(now.minusSeconds(3600), margaret.last().date)
+        assertEquals(now.minusSeconds(3600 + 6 * 86_400L), margaret.first().date)
+        assertEquals(listOf(74, 71, 66, 60, 52, 45, 38), adults.scoreHistory("oa-2").map { it.score })
+        assertTrue(adults.scoreHistory("oa-3").isEmpty())
+        assertEquals(listOf(now.minusSeconds(3600), now.minusSeconds(3 * 3600), null), adults.lovedOnes().map { it.lastCheckIn })
+    }
+
     @Test fun seededTimelineMirrorsPrototype() = runTest {
         val events = timeline.events("oa-2")
         assertEquals(
@@ -55,7 +67,9 @@ class MockDataTest {
     }
 
     @Test fun updatesScoreAndNeighbour() = runTest {
-        adults.recordScore("oa-3", 55)
+        adults.recordScore("oa-3", 55, MockFixtures.FIXED_NOW)
+        assertEquals(listOf(ScoreRecord(55, MockFixtures.FIXED_NOW)), adults.scoreHistory("oa-3"))
+        assertEquals(MockFixtures.FIXED_NOW, adults.olderAdult("oa-3").lastCheckIn)
         val updated = adults.updateNeighbour(
             "oa-3", Neighbour(firstName = "Sam", lastName = "Lee", email = "sam.lee@example.com", mobile = "07700900999"),
         )
@@ -75,7 +89,8 @@ class MockDataTest {
 
     @Test fun missingIdsThrowNotFound() = runTest {
         assertFailsWith<DomainException.NotFound> { adults.olderAdult("x") }
-        assertFailsWith<DomainException.NotFound> { adults.recordScore("x", 1) }
+        assertFailsWith<DomainException.NotFound> { adults.recordScore("x", 1, MockFixtures.FIXED_NOW) }
+        assertFailsWith<DomainException.NotFound> { adults.scoreHistory("x") }
         assertFailsWith<DomainException.NotFound> { alerts.alert("x") }
         assertFailsWith<DomainException.NotFound> { alerts.updateStatus("x", AlertStatus.RESOLVED) }
     }

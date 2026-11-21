@@ -10,6 +10,7 @@ final class TimelineViewModel {
         let title: String
         let time: String
         let severity: TimelineSeverity
+        let kind: TimelineEventKind
         var testID: String { "timeline.event.\(index)" }
     }
 
@@ -38,7 +39,7 @@ final class TimelineViewModel {
             let events = try await getTimeline(olderAdultId: olderAdultId)
             rows = events.enumerated().map { index, event in
                 Row(id: event.id, index: index, title: event.kind.title,
-                    time: formatter.string(from: event.date), severity: event.kind.severity)
+                    time: formatter.string(from: event.date), severity: event.kind.severity, kind: event.kind)
             }
             isLoaded = true
             errorMessage = nil

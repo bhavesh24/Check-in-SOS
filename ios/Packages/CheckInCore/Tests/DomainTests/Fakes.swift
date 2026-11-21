@@ -14,6 +14,7 @@ actor FakeStore: OlderAdultRepository, PatientRepository, AlertRepository, Timel
     var patientList: [Patient]
     var alerts: [String: Alert] = [:]
     var events: [TimelineEvent] = []
+    var history: [ScoreRecord] = []
 
     init(adults: [OlderAdult] = [], patients: [Patient] = []) {
         self.adults = adults
@@ -31,9 +32,14 @@ actor FakeStore: OlderAdultRepository, PatientRepository, AlertRepository, Timel
         adults[i].neighbour = neighbour
         return adults[i]
     }
-    func recordScore(olderAdultId: String, score: Int) async throws {
+    func recordScore(olderAdultId: String, score: Int, at date: Date) async throws {
         guard let i = adults.firstIndex(where: { $0.id == olderAdultId }) else { throw DomainError.notFound(olderAdultId) }
         adults[i].latestScore = score
+        adults[i].lastCheckIn = date
+        history.append(ScoreRecord(score: score, date: date))
+    }
+    func scoreHistory(olderAdultId: String) async throws -> [ScoreRecord] {
+        return history
     }
     func patients() async throws -> [Patient] { patientList }
     func create(olderAdultId: String, subjectName: String, recipient: AlertRecipient, score: Int?,

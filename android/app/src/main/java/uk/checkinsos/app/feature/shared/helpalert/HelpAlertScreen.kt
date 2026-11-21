@@ -1,21 +1,15 @@
 package uk.checkinsos.app.feature.shared.helpalert
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
-import uk.checkinsos.app.designsystem.AppTheme
+import uk.checkinsos.app.designsystem.CountdownRing
 import uk.checkinsos.app.designsystem.FlowScreen
 import uk.checkinsos.app.designsystem.MessageText
 import uk.checkinsos.app.designsystem.PrimaryButton
+import uk.checkinsos.app.designsystem.UrgentBanner
 import uk.checkinsos.app.feature.shared.AlertSummary
 import uk.checkinsos.app.feature.shared.EventEffect
 
@@ -35,20 +29,15 @@ fun HelpAlertScreen(viewModel: HelpAlertViewModel, onBack: () -> Unit, onAccepte
 @Composable
 fun HelpAlertContent(state: HelpAlertUiState, onBack: () -> Unit, onAccept: () -> Unit) {
     FlowScreen(
-        title = "Help",
+        title = state.title,
         onBack = onBack,
         step = state.step,
         totalSteps = state.totalSteps,
         errorMessage = state.errorMessage,
         actions = { PrimaryButton("Accept", "${state.tagPrefix}.accept", onClick = onAccept, enabled = !state.isBusy) },
     ) {
+        UrgentBanner(state.bannerText)
         MessageText(state.message, testTag = "${state.tagPrefix}.message")
-        Text(
-            state.countdownText,
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
-            color = AppTheme.colors.statusCritical,
-            modifier = Modifier.fillMaxWidth().wrapContentWidth().testTag("${state.tagPrefix}.countdown"),
-        )
+        CountdownRing(state.countdownText, state.countdownProgress, state.countdownCaption, "${state.tagPrefix}.countdown")
     }
 }

@@ -27,7 +27,6 @@ final class PatientsViewModel {
         }
     }
 
-    func subtitle(for patient: Patient) -> String { DisplayText.score(patient.latestScore) }
 
     func simulate() async {
         guard !isBusy else { return }

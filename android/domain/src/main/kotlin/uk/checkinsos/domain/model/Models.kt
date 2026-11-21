@@ -36,7 +36,12 @@ data class OlderAdult(
     val name: String,
     val latestScore: Int?,
     val neighbour: Neighbour,
+    /** When they last checked in, or null if they never have. */
+    val lastCheckIn: Instant? = null,
 )
+
+/** One past check-in score, for the family's "last check-in" line and trend chart. */
+data class ScoreRecord(val score: Int, val date: Instant)
 
 /** An older adult as known to a hospital. */
 data class Patient(

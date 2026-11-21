@@ -27,7 +27,6 @@ final class NeighboursViewModel {
         }
     }
 
-    func subtitle(for adult: OlderAdult) -> String { DisplayText.score(adult.latestScore) }
 
     func simulate() async {
         guard !isBusy else { return }

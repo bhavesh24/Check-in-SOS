@@ -9,14 +9,21 @@ struct RoleCard: View {
     let action: () -> Void
 
     @ScaledMetric(relativeTo: .title2) private var badgeSize: CGFloat = 52
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Theme.spacing) {
+            // At accessibility text sizes the badge sits above the text so the words keep the full width.
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(spacing: Theme.spacing))
+            let badge = min(badgeSize, 64)
+            layout {
                 Image(systemName: systemImage)
                     .font(.title2.weight(.semibold))
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     .foregroundStyle(Theme.onRole)
-                    .frame(width: badgeSize, height: badgeSize)
+                    .frame(width: badge, height: badge)
                     .background(tint, in: Circle())
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -29,9 +36,11 @@ struct RoleCard: View {
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "chevron.forward")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Theme.secondaryText)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Image(systemName: "chevron.forward")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Theme.secondaryText)
+                }
             }
             .padding(Theme.spacing)
             .frame(maxWidth: .infinity, minHeight: 80)

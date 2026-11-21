@@ -22,6 +22,16 @@ public enum MockFixtures {
     /// Patient id → older adult id, in list order.
     static let patients: [(id: String, olderAdultId: String)] = [("p-1", "oa-2"), ("p-2", "oa-3"), ("p-3", "oa-1")]
 
+    /// Daily check-ins for the trend chart, oldest first. Each list's last score is the adult's latest score,
+    /// taken at the same time as their "Score N" timeline event; earlier ones are one day apart.
+    static func scoreHistory() -> [(olderAdultId: String, minutesBefore: Int, score: Int)] {
+        let day = 24 * 60
+        let margaret = [72, 70, 74, 68, 73, 78, 76]
+        let arthur = [74, 71, 66, 60, 52, 45, 38]
+        return margaret.enumerated().map { ("oa-1", 60 + (margaret.count - 1 - $0) * day, $1) }
+            + arthur.enumerated().map { ("oa-2", 180 + (arthur.count - 1 - $0) * day, $1) }
+    }
+
     static func timeline() -> [(olderAdultId: String, minutesBefore: Int, kind: TimelineEventKind)] {
         [
             ("oa-1", 60, .score(76)),

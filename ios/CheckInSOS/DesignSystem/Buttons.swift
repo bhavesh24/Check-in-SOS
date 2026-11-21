@@ -16,6 +16,7 @@ struct PrimaryButtonStyle: ButtonStyle {
                         in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
             .opacity(configuration.isPressed ? 0.85 : 1)
             .contentShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, pressed in pressed }
     }
 }
 
@@ -33,6 +34,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).stroke(Theme.primary, lineWidth: 2))
             .opacity(configuration.isPressed ? 0.85 : 1)
             .contentShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, pressed in pressed }
     }
 }
 

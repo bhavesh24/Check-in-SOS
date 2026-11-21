@@ -6,17 +6,19 @@ struct AssessmentView: View {
 
     var body: some View {
         FlowScreen(step: viewModel.step, totalSteps: viewModel.totalSteps, errorMessage: viewModel.errorMessage) {
-            section {
-                ForEach(PhysicalWellbeing.allCases, id: \.self) { option in
-                    ChoiceChip(title: option.title, isSelected: viewModel.physical == option) {
+            section("How do you feel physically?") {
+                ChoiceGrid(items: PhysicalWellbeing.allCases) { option in
+                    ChoiceTile(title: option.title, systemImage: option.systemImage,
+                               isSelected: viewModel.physical == option) {
                         viewModel.select(option)
                     }
                     .accessibilityIdentifier(option.testID)
                 }
             }
-            section {
-                ForEach(Mood.allCases, id: \.self) { option in
-                    ChoiceChip(title: option.title, isSelected: viewModel.mood == option) {
+            section("How is your mood?") {
+                ChoiceGrid(items: Mood.allCases) { option in
+                    ChoiceTile(title: option.title, systemImage: option.systemImage,
+                               isSelected: viewModel.mood == option) {
                         viewModel.select(option)
                     }
                     .accessibilityIdentifier(option.testID)
@@ -37,13 +39,36 @@ struct AssessmentView: View {
         .withBackButton()
     }
 
-    private func section(@ViewBuilder _ options: () -> some View) -> some View {
+    private func section(_ heading: String, @ViewBuilder _ options: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Are you")
+            Text(heading)
                 .font(.title2.weight(.bold))
                 .foregroundStyle(Theme.text)
+                .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
             options()
+        }
+    }
+}
+
+private extension PhysicalWellbeing {
+    var systemImage: String {
+        switch self {
+        case .fine: "hand.thumbsup.fill"
+        case .good: "star.fill"
+        case .ill: "thermometer.medium"
+        case .verySick: "bed.double.fill"
+        }
+    }
+}
+
+private extension Mood {
+    var systemImage: String {
+        switch self {
+        case .happy: "sun.max.fill"
+        case .pleasant: "cloud.sun.fill"
+        case .anxious: "cloud.bolt.rain.fill"
+        case .depressed: "cloud.rain.fill"
         }
     }
 }

@@ -5,7 +5,7 @@ import uk.checkinsos.domain.model.Role
 
 /** Role picker — the demo entry point. */
 class HomeViewModel : FlowViewModel<HomeUiState, HomeViewModel.Event>(
-    HomeUiState(Role.entries.map { HomeOption(it, title(it)) }),
+    HomeUiState(Role.entries.map { HomeOption(it, title(it), description(it)) }),
 ) {
     data class Event(val role: Role)
 
@@ -17,6 +17,13 @@ class HomeViewModel : FlowViewModel<HomeUiState, HomeViewModel.Event>(
             Role.FAMILY -> "Concerned family"
             Role.HOSPITAL -> "Hospital"
             Role.NEIGHBOUR -> "Neighbour"
+        }
+
+        fun description(role: Role): String = when (role) {
+            Role.OLDER_ADULT -> "Do your daily check-in"
+            Role.FAMILY -> "See how your loved ones are doing"
+            Role.HOSPITAL -> "Respond to patient alerts"
+            Role.NEIGHBOUR -> "Help someone living nearby"
         }
     }
 }

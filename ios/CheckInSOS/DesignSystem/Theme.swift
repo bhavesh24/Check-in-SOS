@@ -15,6 +15,8 @@ enum Theme {
     static let statusCritical = Color(light: 0xB42318, dark: 0xF97066)
     static let statusWarning = Color(light: 0xB54708, dark: 0xFDB022)
     static let statusOk = Color(light: 0x067647, dark: 0x47CD89)
+    static let onRole = Color(light: 0xFFFFFF, dark: 0x0B1214)
+    static let cardBorder = Color(light: 0xE4E7EC, dark: 0x344054)
 
     /// Minimum touch target (pt).
     static let minTouchTarget: CGFloat = 48
@@ -22,6 +24,26 @@ enum Theme {
     static let primaryButtonHeight: CGFloat = 56
     static let cornerRadius: CGFloat = 14
     static let spacing: CGFloat = 16
+
+    /// Icon badge colour for each role on Home. `onRole` passes 4.5:1 on all of them.
+    static func color(for role: Role) -> Color {
+        switch role {
+        case .olderAdult: primary
+        case .family: Color(light: 0x6941C6, dark: 0xB692F6)
+        case .hospital: Color(light: 0x175CD3, dark: 0x84ADFF)
+        case .neighbour: Color(light: 0xB93815, dark: 0xF38744)
+        }
+    }
+
+    /// Score ring colour: green when good, then reds that deepen as the score drops. All ≥3:1 on `background`.
+    static func color(for band: ScoreBand) -> Color {
+        switch band {
+        case .good: statusOk
+        case .mild: Color(light: 0xF04438, dark: 0xFDA29B)
+        case .moderate: Color(light: 0xD92D20, dark: 0xF97066)
+        case .severe: Color(light: 0x912018, dark: 0xF04438)
+        }
+    }
 
     static func color(for severity: TimelineSeverity) -> Color {
         switch severity {

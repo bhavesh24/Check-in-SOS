@@ -33,6 +33,11 @@ final class OlderAdultRobot: Robot {
         } else {
             assertMissing("score.neighbourNotified")
         }
+        if score >= 70 {
+            assertLabel("score.reassurance", "You're doing well today.")
+        } else {
+            assertMissing("score.reassurance")
+        }
         return self
     }
 
@@ -40,7 +45,7 @@ final class OlderAdultRobot: Robot {
 
     @discardableResult
     func openMissedCheckIn() -> Self {
-        tap("assessment.demoNoCheckIn")
+        tapAboveBar("assessment.demoNoCheckIn", barId: "assessment.submit")
         assertTitle("No Check-in")
         assertLabel("noCheckIn.message",
                     "As you have not checked in, a notification has been sent to your neighbour")

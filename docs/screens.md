@@ -13,7 +13,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 - Multi-step flows show a step indicator "Step N of M" (test ID `stepProgress`). Step counts are listed per flow below.
 - Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
 - Text scales with Dynamic Type (iOS) / font scale (Android); no fixed-height text containers.
-- Orientation: both apps support portrait and landscape (left/right; iPhone excludes upside-down). At short landscape heights content scrolls under the pinned action bar rather than clipping.
+- Orientation: both apps support all four orientations: portrait, upside-down portrait and landscape left/right (Android `fullUser`, so the user's rotation lock is respected). iPhones with Face ID never rotate upside-down (an iOS restriction), so there it only applies to Home-button iPhones. At short landscape heights content scrolls under the pinned action bar rather than clipping.
 - Push notifications are **simulated** by a "Simulate alert" button. 999/111 **never dials** in this build.
 - Any unexpected failure loading or saving shows "Something went wrong. Please try again." (test ID `error.message`) on the current screen.
 - Times (timeline `HH:mm`) use the device time zone; in UI-test mode they use UTC so the fixed clock gives stable values (e.g. `oa-2` "Score 38" at 06:00).
@@ -29,7 +29,27 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 | `statusCritical` (red) | `#B42318` | `#F97066` | timeline: score <70, notification sent, escalation |
 | `statusWarning` (amber) | `#B54708` | `#FDB022` | timeline: acknowledged, in hospital care |
 | `statusOk` (green) | `#067647` | `#47CD89` | timeline: neighbour reached, recovered, alive, all OK |
-| Score numeral | 72 pt/sp, primary | | rendered as `76/` newline `100` like the prototype |
+| Score numeral | 72 pt/sp, primary | | rendered as `76/` newline `100` like the prototype (Current status) |
+| `roleOlderAdult` | `#0F766E` | `#2DD4BF` | Home card icon badge (same as `primary`) |
+| `roleFamily` | `#6941C6` | `#B692F6` | Home card icon badge |
+| `roleHospital` | `#175CD3` | `#84ADFF` | Home card icon badge |
+| `roleNeighbour` | `#B93815` | `#F38744` | Home card icon badge |
+| `onRole` | `#FFFFFF` | `#0B1214` | icon on a role badge (≥4.5:1 on every role colour) |
+| `cardBorder` | `#E4E7EC` | `#344054` | 1 pt/dp outline of Home cards |
+| `scoreMild` (50–69) | `#F04438` | `#FDA29B` | Score ring, lightest red |
+| `scoreModerate` (30–49) | `#D92D20` | `#F97066` | Score ring |
+| `scoreSevere` (0–29) | `#912018` | `#F04438` | Score ring, deepest red. Every ring colour is ≥3:1 on `background` |
+
+**Icons** are decorative (hidden from accessibility) and platform-native: SF Symbols on iOS, Material icons on Android.
+
+| Item | SF Symbol | Material icon |
+|---|---|---|
+| Old age adult | `person.fill.checkmark` | `HowToReg` |
+| Concerned family | `person.2.fill` | `Groups` |
+| Hospital | `cross.case.fill` | `LocalHospital` |
+| Neighbour | `house.fill` | `Home` |
+| Fine / Good / Ill / Very sick | `hand.thumbsup.fill` / `star.fill` / `thermometer.medium` / `bed.double.fill` | `ThumbUp` / `Star` / `Thermostat` / `Bed` |
+| Happy / Pleasant / Anxious / Depressed | `sun.max.fill` / `cloud.sun.fill` / `cloud.bolt.rain.fill` / `cloud.rain.fill` | `WbSunny` / `WbCloudy` / `Thunderstorm` / `Umbrella` |
 
 ## Fixed values for tests
 - Fixed clock ("now"): **2026-01-15T09:00:00Z**.
@@ -102,24 +122,28 @@ display-only, and family see events only on the Timeline.
 
 ### Home: role picker
 - Title: "Home". Heading: "Are you".
-- Buttons, in this order:
+- One full-width card per role, in this order. Each card is a single button: a circular icon badge in the
+  role's colour, the label, the description underneath, and a trailing chevron. Its accessibility label is
+  the label, and its hint is the description.
 
-| Label | Test ID | Goes to |
-|---|---|---|
-| "Old age adult" | `home.role.olderAdult` | Assessment |
-| "Concerned family" | `home.role.family` | Loved ones |
-| "Hospital" | `home.role.hospital` | Patients |
-| "Neighbour" | `home.role.neighbour` | Neighbours |
+| Label | Description | Test ID | Goes to |
+|---|---|---|---|
+| "Old age adult" | "Do your daily check-in" | `home.role.olderAdult` | Assessment |
+| "Concerned family" | "See how your loved ones are doing" | `home.role.family` | Loved ones |
+| "Hospital" | "Respond to patient alerts" | `home.role.hospital` | Patients |
+| "Neighbour" | "Help someone living nearby" | `home.role.neighbour` | Neighbours |
 
 ### Older adult (2 steps: Assessment = 1, Score = 2)
 **Assessment**
 - Title "Assessment".
-- Section "Are you" (physical), choose one:
+- Answers are tiles in a 2-column grid (1 column when text is very large): an icon above the label.
+  Unselected tiles are outlined; the selected tile is filled `primary` with a checkmark.
+- Section "How do you feel physically?", choose one:
   - "Fine" `assessment.physical.fine`
   - "Good" `assessment.physical.good`
   - "Ill" `assessment.physical.ill`
   - "Very sick" `assessment.physical.verySick`
-- Section "Are you" (mood), choose one:
+- Section "How is your mood?", choose one:
   - "Happy" `assessment.mood.happy`
   - "Pleasant" `assessment.mood.pleasant`
   - "Anxious" `assessment.mood.anxious`
@@ -129,7 +153,12 @@ display-only, and family see events only on the Timeline.
 
 **Score**
 - Title "Score".
-- Numeral `score.value`, shown as "76/100" (accessibility label "Score 76 out of 100").
+- Score ring `score.value`: a circular gauge filled to score/100, with the number in the middle and
+  "out of 100" under it (accessibility label "Score 76 out of 100"). The ring colour follows the
+  EscalationPolicy bands: `statusOk` (green) for ≥ 70, then shades of red that deepen as the score drops:
+  `scoreMild` for 50–69, `scoreModerate` for 30–49 and `scoreSevere` for 0–29. The number stays in the
+  text colour.
+- If the score is ≥ 70: "You're doing well today." `score.reassurance`.
 - If the score is < 70: "A notification has been sent to your neighbour" `score.neighbourNotified`.
 - "Done" `score.done` returns to Home.
 

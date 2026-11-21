@@ -9,6 +9,8 @@ import Testing
         #expect(vm.options.map(\.title) == ["Old age adult", "Concerned family", "Hospital", "Neighbour"])
         #expect(vm.options.map(\.id) == ["home.role.olderAdult", "home.role.family", "home.role.hospital",
                                          "home.role.neighbour"])
+        #expect(vm.options.map(\.description) == ["Do your daily check-in", "See how your loved ones are doing",
+                                                  "Respond to patient alerts", "Help someone living nearby"])
         vm.select(.hospital)
         #expect(recorder.values == [.hospital])
     }
@@ -107,7 +109,13 @@ import Testing
         let done = Recorder<Void>()
         let vm = ScoreViewModel(score: 38, neighbourNotified: true, onDone: { done.record(()) })
         #expect(vm.notificationText == "A notification has been sent to your neighbour")
+        #expect(vm.reassuranceText == "You're doing well today.")
         #expect(vm.step == 2 && vm.totalSteps == 2)
+        #expect(vm.band == .moderate && !vm.showsReassurance)
+        let ring = { (score: Int) in ScoreViewModel(score: score, neighbourNotified: false, onDone: {}) }
+        #expect([100, 70, 69, 50, 49, 30, 29, 0].map { ring($0).band } ==
+                [.good, .good, .mild, .mild, .moderate, .moderate, .severe, .severe])
+        #expect(ring(70).showsReassurance && !ring(69).showsReassurance)
         #expect(ScoreNumeral.accessibilityLabel(for: 38) == "Score 38 out of 100")
         #expect(ScoreNumeral.accessibilityLabel(for: nil) == "No score yet")
         vm.done()

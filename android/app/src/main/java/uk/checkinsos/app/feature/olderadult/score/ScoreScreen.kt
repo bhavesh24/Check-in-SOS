@@ -11,7 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uk.checkinsos.app.designsystem.FlowScreen
 import uk.checkinsos.app.designsystem.MessageText
 import uk.checkinsos.app.designsystem.PrimaryButton
-import uk.checkinsos.app.designsystem.ScoreNumeral
+import uk.checkinsos.app.designsystem.ScoreRing
 import uk.checkinsos.app.feature.shared.EventEffect
 
 @Composable
@@ -30,7 +30,15 @@ fun ScoreContent(state: ScoreUiState, onBack: () -> Unit, onDone: () -> Unit) {
         totalSteps = state.totalSteps,
         actions = { PrimaryButton("Done", "score.done", onClick = onDone) },
     ) {
-        ScoreNumeral(state.score, "score.value", Modifier.padding(vertical = 24.dp))
+        ScoreRing(state.score, state.band, "score.value", Modifier.padding(vertical = 24.dp))
+        if (state.showsReassurance) {
+            MessageText(
+                state.reassuranceText,
+                Modifier.fillMaxWidth(),
+                testTag = "score.reassurance",
+                textAlign = TextAlign.Center,
+            )
+        }
         if (state.neighbourNotified) {
             MessageText(
                 state.notificationText,

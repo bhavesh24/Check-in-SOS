@@ -29,6 +29,11 @@ class OlderAdultRobot(rule: ComposeTestRule) : Robot(rule) {
         } else {
             assertMissing("score.neighbourNotified")
         }
+        if (score >= 70) {
+            assertText("score.reassurance", "You're doing well today.")
+        } else {
+            assertMissing("score.reassurance")
+        }
     }
 
     fun done() = HomeRobot(rule).also { tap("score.done") }

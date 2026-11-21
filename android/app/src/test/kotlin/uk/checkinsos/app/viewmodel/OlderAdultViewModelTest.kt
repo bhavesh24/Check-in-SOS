@@ -12,6 +12,7 @@ import uk.checkinsos.app.feature.olderadult.assessment.AssessmentViewModel
 import uk.checkinsos.app.feature.olderadult.assessment.testTag
 import uk.checkinsos.app.feature.olderadult.assessment.title
 import uk.checkinsos.app.feature.olderadult.nocheckin.NoCheckInViewModel
+import uk.checkinsos.app.feature.olderadult.score.ScoreUiState
 import uk.checkinsos.app.feature.olderadult.score.ScoreViewModel
 import uk.checkinsos.app.feature.shared.DisplayText
 import uk.checkinsos.app.navigation.Routes
@@ -19,6 +20,7 @@ import uk.checkinsos.domain.model.AssessmentResult
 import uk.checkinsos.domain.model.Mood
 import uk.checkinsos.domain.model.PhysicalWellbeing
 import uk.checkinsos.domain.model.Role
+import uk.checkinsos.app.feature.shared.ScoreBand
 import uk.checkinsos.domain.service.FixedTimeProvider
 import uk.checkinsos.domain.usecase.SubmitAssessment
 import kotlin.test.assertEquals
@@ -36,6 +38,10 @@ class HomeViewModelTest {
         assertEquals(
             listOf("home.role.olderAdult", "home.role.family", "home.role.hospital", "home.role.neighbour"),
             vm.state.value.options.map { it.testTag },
+        )
+        assertEquals(
+            listOf("Do your daily check-in", "See how your loved ones are doing", "Respond to patient alerts", "Help someone living nearby"),
+            vm.state.value.options.map { it.description },
         )
         vm.select(Role.HOSPITAL)
         assertEquals(listOf(HomeViewModel.Event(Role.HOSPITAL)), events)
@@ -117,7 +123,16 @@ class ScoreAndSharedTest {
         val vm = ScoreViewModel(38, neighbourNotified = true)
         val events = collect(vm.events)
         assertEquals("A notification has been sent to your neighbour", vm.state.value.notificationText)
+        assertEquals("You're doing well today.", vm.state.value.reassuranceText)
         assertEquals(2, vm.state.value.step)
+        assertEquals(ScoreBand.MODERATE, vm.state.value.band)
+        assertFalse(vm.state.value.showsReassurance)
+        val ring = { score: Int -> ScoreUiState(score, neighbourNotified = false) }
+        assertEquals(
+            listOf(ScoreBand.GOOD, ScoreBand.GOOD, ScoreBand.MILD, ScoreBand.MILD, ScoreBand.MODERATE, ScoreBand.MODERATE, ScoreBand.SEVERE, ScoreBand.SEVERE),
+            listOf(100, 70, 69, 50, 49, 30, 29, 0).map { ring(it).band },
+        )
+        assertTrue(ring(70).showsReassurance && !ring(69).showsReassurance)
         vm.done()
         assertEquals(1, events.size)
     }

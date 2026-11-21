@@ -7,9 +7,19 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bed
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material.icons.filled.Umbrella
+import androidx.compose.material.icons.filled.WbCloudy
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -17,7 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uk.checkinsos.app.designsystem.AppTheme
-import uk.checkinsos.app.designsystem.ChoiceChip
+import uk.checkinsos.app.designsystem.ChoiceGrid
+import uk.checkinsos.app.designsystem.ChoiceTile
 import uk.checkinsos.app.designsystem.Dimens
 import uk.checkinsos.app.designsystem.FlowScreen
 import uk.checkinsos.app.designsystem.PrimaryButton
@@ -67,14 +78,14 @@ fun AssessmentContent(
         errorMessage = state.errorMessage,
         actions = { PrimaryButton("Submit", "assessment.submit", onClick = onSubmit, enabled = state.canSubmit) },
     ) {
-        Section {
-            PhysicalWellbeing.entries.forEach { option ->
-                ChoiceChip(option.title, state.physical == option, option.testTag, onClick = { onPhysical(option) })
+        Section("How do you feel physically?") {
+            ChoiceGrid(PhysicalWellbeing.entries) { option, modifier ->
+                ChoiceTile(option.title, option.icon, state.physical == option, option.testTag, { onPhysical(option) }, modifier)
             }
         }
-        Section {
-            Mood.entries.forEach { option ->
-                ChoiceChip(option.title, state.mood == option, option.testTag, onClick = { onMood(option) })
+        Section("How is your mood?") {
+            ChoiceGrid(Mood.entries) { option, modifier ->
+                ChoiceTile(option.title, option.icon, state.mood == option, option.testTag, { onMood(option) }, modifier)
             }
         }
         TextButton(
@@ -87,12 +98,28 @@ fun AssessmentContent(
 }
 
 @Composable
-private fun Section(options: @Composable () -> Unit) {
+private fun Section(heading: String, options: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.selectableGroup()) {
         Text(
-            "Are you", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
+            heading, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
             color = AppTheme.colors.text, modifier = Modifier.semantics { heading() },
         )
         options()
     }
 }
+
+private val PhysicalWellbeing.icon: ImageVector
+    get() = when (this) {
+        PhysicalWellbeing.FINE -> Icons.Filled.ThumbUp
+        PhysicalWellbeing.GOOD -> Icons.Filled.Star
+        PhysicalWellbeing.ILL -> Icons.Filled.Thermostat
+        PhysicalWellbeing.VERY_SICK -> Icons.Filled.Bed
+    }
+
+private val Mood.icon: ImageVector
+    get() = when (this) {
+        Mood.HAPPY -> Icons.Filled.WbSunny
+        Mood.PLEASANT -> Icons.Filled.WbCloudy
+        Mood.ANXIOUS -> Icons.Filled.Thunderstorm
+        Mood.DEPRESSED -> Icons.Filled.Umbrella
+    }

@@ -1,3 +1,4 @@
+import Domain
 import SwiftUI
 
 // SwiftUI previews live here so they stay out of coverage (`/Previews/` is excluded by the script).
@@ -10,8 +11,12 @@ import SwiftUI
         VStack(spacing: 16) {
             StepProgress(step: 2, total: 4)
             ScoreNumeral(score: 76)
-            ChoiceChip(title: "Good", isSelected: true) {}
-            ChoiceChip(title: "Ill", isSelected: false) {}
+            ScoreRing(score: 76, band: .good)
+            RoleCard(title: "Neighbour", description: "Help someone living nearby", systemImage: "house.fill",
+                     tint: Theme.color(for: .neighbour)) {}
+            ChoiceGrid(items: ["Good", "Ill"]) { title in
+                ChoiceTile(title: title, systemImage: "star.fill", isSelected: title == "Good") {}
+            }
             PersonRow(name: "Margaret Wilson", subtitle: "Score 76", showsChevron: true)
             TimelineRow(title: "Score 38", time: "06:00", severity: .critical)
             Button("Primary") {}.buttonStyle(.primary)

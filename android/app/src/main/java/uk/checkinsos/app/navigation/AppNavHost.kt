@@ -2,6 +2,8 @@ package uk.checkinsos.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import uk.checkinsos.app.AppContainer
 import uk.checkinsos.app.designsystem.CheckInTheme
+import uk.checkinsos.app.designsystem.RoleTheme
 import uk.checkinsos.app.feature.family.editneighbour.EditNeighbourScreen
 import uk.checkinsos.app.feature.family.lovedones.LovedOnesScreen
 import uk.checkinsos.app.feature.family.status.StatusScreen
@@ -26,6 +29,7 @@ import uk.checkinsos.app.feature.olderadult.nocheckin.NoCheckInScreen
 import uk.checkinsos.app.feature.olderadult.score.ScoreScreen
 import uk.checkinsos.app.feature.shared.helpalert.HelpAlertScreen
 import uk.checkinsos.domain.model.AlertRecipient
+import uk.checkinsos.domain.model.Role
 
 /** The whole app: theme + navigation. Used by MainActivity and by the UI tests (with a test container). */
 @Composable
@@ -46,7 +50,7 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
         }
 
         // Older adult
-        composable<Routes.Assessment> {
+        themed<Routes.Assessment>(Role.OLDER_ADULT) {
             AssessmentScreen(
                 viewModel { container.makeAssessment() },
                 onBack = back,
@@ -54,23 +58,23 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
                 onMissedCheckIn = { navController.navigate(Routes.NoCheckIn) },
             )
         }
-        composable<Routes.Score> { entry ->
+        themed<Routes.Score>(Role.OLDER_ADULT) { entry ->
             val route = entry.toRoute<Routes.Score>()
             ScoreScreen(viewModel { container.makeScore(route.score, route.neighbourNotified) }, onBack = back) {
                 navController.popBackStack<Routes.Home>(inclusive = false)
             }
         }
-        composable<Routes.NoCheckIn> {
+        themed<Routes.NoCheckIn>(Role.OLDER_ADULT) {
             NoCheckInScreen(viewModel { container.makeNoCheckIn() }, onBack = back)
         }
 
         // Family
-        composable<Routes.LovedOnes> {
+        themed<Routes.LovedOnes>(Role.FAMILY) {
             LovedOnesScreen(viewModel { container.makeLovedOnes() }, onBack = back) {
                 navController.navigate(Routes.Status(it))
             }
         }
-        composable<Routes.Status> { entry ->
+        themed<Routes.Status>(Role.FAMILY) { entry ->
             val id = entry.toRoute<Routes.Status>().olderAdultId
             StatusScreen(
                 viewModel { container.makeStatus(id) },
@@ -79,37 +83,40 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
                 onTimeline = { navController.navigate(Routes.Timeline(it)) },
             )
         }
-        composable<Routes.EditNeighbour> { entry ->
+        themed<Routes.EditNeighbour>(Role.FAMILY) { entry ->
             val id = entry.toRoute<Routes.EditNeighbour>().olderAdultId
             EditNeighbourScreen(viewModel { container.makeEditNeighbour(id) }, onBack = back, onSaved = back)
         }
-        composable<Routes.Timeline> { entry ->
+        themed<Routes.Timeline>(Role.FAMILY) { entry ->
             val id = entry.toRoute<Routes.Timeline>().olderAdultId
             TimelineScreen(viewModel { container.makeTimeline(id) }, onBack = back)
         }
 
         // Neighbour
-        composable<Routes.Neighbours> {
+        themed<Routes.Neighbours>(Role.NEIGHBOUR) {
             NeighboursScreen(viewModel { container.makeNeighbours() }, onBack = back) {
                 navController.navigate(Routes.helpAlert(it))
             }
         }
+        // Shared by both help flows: themed by who the alert is for.
         composable<Routes.HelpAlert> { entry ->
-            val alert = entry.toRoute<Routes.HelpAlert>().alert
-            HelpAlertScreen(viewModel { container.makeHelpAlert(alert) }, onBack = back) { accepted ->
-                navController.navigate(
-                    if (accepted.recipient == AlertRecipient.NEIGHBOUR) Routes.reached(accepted)
-                    else Routes.careStep(CareStep.IN_CARE, accepted),
-                )
+            val route = entry.toRoute<Routes.HelpAlert>()
+            RoleTheme(route.role) {
+                HelpAlertScreen(viewModel { container.makeHelpAlert(route.alert) }, onBack = back) { accepted ->
+                    navController.navigate(
+                        if (accepted.recipient == AlertRecipient.NEIGHBOUR) Routes.reached(accepted)
+                        else Routes.careStep(CareStep.IN_CARE, accepted),
+                    )
+                }
             }
         }
-        composable<Routes.Reached> { entry ->
+        themed<Routes.Reached>(Role.NEIGHBOUR) { entry ->
             val alert = entry.toRoute<Routes.Reached>().alert
             ReachedScreen(viewModel { container.makeReached(alert) }, onBack = back) {
                 navController.navigate(Routes.escalate(it))
             }
         }
-        composable<Routes.Escalate> { entry ->
+        themed<Routes.Escalate>(Role.NEIGHBOUR) { entry ->
             val alert = entry.toRoute<Routes.Escalate>().alert
             EscalateScreen(
                 viewModel { container.makeEscalate(alert) },
@@ -118,7 +125,7 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
                 onCalled = { a, number -> navController.navigate(Routes.alive(a, number)) },
             )
         }
-        composable<Routes.Alive> { entry ->
+        themed<Routes.Alive>(Role.NEIGHBOUR) { entry ->
             val route = entry.toRoute<Routes.Alive>()
             AliveScreen(viewModel { container.makeAlive(route.alert, route.calledNumber) }, onBack = back) {
                 navController.popBackStack<Routes.Neighbours>(inclusive = false)
@@ -126,12 +133,12 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
         }
 
         // Hospital
-        composable<Routes.Patients> {
+        themed<Routes.Patients>(Role.HOSPITAL) {
             PatientsScreen(viewModel { container.makePatients() }, onBack = back) {
                 navController.navigate(Routes.helpAlert(it))
             }
         }
-        composable<Routes.CareStepRoute> { entry ->
+        themed<Routes.CareStepRoute>(Role.HOSPITAL) { entry ->
             val route = entry.toRoute<Routes.CareStepRoute>()
             CareStepScreen(viewModel { container.makeCareStep(route.careStep, route.alert) }, onBack = back) { next, alert ->
                 if (next != null) {
@@ -142,4 +149,12 @@ fun AppNavHost(container: AppContainer, navController: NavHostController = remem
             }
         }
     }
+}
+
+/** A destination themed in [role]'s Home card colour (docs/screens.md, "Flow themes"). */
+private inline fun <reified T : Any> NavGraphBuilder.themed(
+    role: Role,
+    crossinline content: @Composable (NavBackStackEntry) -> Unit,
+) {
+    composable<T> { entry -> RoleTheme(role) { content(entry) } }
 }

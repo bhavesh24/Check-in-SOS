@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StatusView: View {
+    @Environment(\.roleTheme) private var theme
     @State var viewModel: StatusViewModel
 
     var body: some View {
@@ -45,20 +46,20 @@ struct StatusView: View {
                                 .frame(width: Theme.minTouchTarget, height: Theme.minTouchTarget)
                                 .contentShape(Rectangle())
                         }
-                        .foregroundStyle(Theme.primary)
+                        .foregroundStyle(theme.primary)
                         .accessibilityIdentifier("status.editNeighbour")
                     }
                     .padding(.leading, Theme.spacing)
                     .padding(.trailing, 4)
                     .padding(.vertical, 8)
-                    .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
+                    .background(theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
                 }
 
                 if viewModel.showsTrend {
                     section(viewModel.trendTitle) {
                         ScoreTrendChart(records: viewModel.history, accessibilityText: viewModel.trendAccessibilityText)
                             .padding(Theme.spacing)
-                            .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
+                            .background(theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius + 4))
                             .accessibilityIdentifier("status.trend")
                     }
                 }

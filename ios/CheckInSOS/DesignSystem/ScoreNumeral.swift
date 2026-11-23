@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Big score rendered like the prototype: "76/" over "100" ("—" when there is no score yet).
 struct ScoreNumeral: View {
+    @Environment(\.roleTheme) private var theme
     let score: Int?
     @ScaledMetric(relativeTo: .largeTitle) private var size: CGFloat = 72
 
@@ -13,7 +14,7 @@ struct ScoreNumeral: View {
                 Text("100").font(.system(size: size / 2, weight: .semibold, design: .rounded))
             }
         }
-        .foregroundStyle(Theme.primary)
+        .foregroundStyle(theme.primary)
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Self.accessibilityLabel(for: score))

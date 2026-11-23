@@ -2,6 +2,7 @@ import SwiftUI
 
 /// "Step N of M" with a segmented bar (test ID `stepProgress`).
 struct StepProgress: View {
+    @Environment(\.roleTheme) private var theme
     let step: Int
     let total: Int
 
@@ -13,7 +14,7 @@ struct StepProgress: View {
             HStack(spacing: 6) {
                 ForEach(1...max(total, 1), id: \.self) { index in
                     Capsule()
-                        .fill(index <= step ? Theme.primary : Theme.disabledBackground)
+                        .fill(index <= step ? theme.primary : Theme.disabledBackground)
                         .frame(height: 6)
                 }
             }

@@ -2,6 +2,7 @@ import Domain
 import SwiftUI
 
 struct AssessmentView: View {
+    @Environment(\.roleTheme) private var theme
     @State var viewModel: AssessmentViewModel
 
     var body: some View {
@@ -26,7 +27,7 @@ struct AssessmentView: View {
             }
             Button("Demo: missed check-in") { viewModel.showMissedCheckIn() }
                 .font(.body.weight(.semibold))
-                .foregroundStyle(Theme.primary)
+                .foregroundStyle(theme.primary)
                 .frame(minHeight: Theme.minTouchTarget)
                 .accessibilityIdentifier("assessment.demoNoCheckIn")
         } actions: {

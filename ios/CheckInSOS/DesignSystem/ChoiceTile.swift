@@ -3,6 +3,7 @@ import SwiftUI
 /// A single-choice answer tile (Fine / Good / …): an icon above the label. Selected tiles are filled and
 /// expose the "Selected" trait.
 struct ChoiceTile: View {
+    @Environment(\.roleTheme) private var theme
     let title: String
     let systemImage: String
     let isSelected: Bool
@@ -25,10 +26,10 @@ struct ChoiceTile: View {
             .padding(.horizontal, 12)
             .padding(.vertical, Theme.spacing)
             .frame(maxWidth: .infinity, minHeight: 112, maxHeight: .infinity)
-            .foregroundStyle(isSelected ? Theme.onPrimary : Theme.primary)
-            .background(isSelected ? Theme.primary : Theme.surfaceTint,
+            .foregroundStyle(isSelected ? theme.onPrimary : theme.primary)
+            .background(isSelected ? theme.primary : theme.surfaceTint,
                         in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
-            .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).stroke(Theme.primary, lineWidth: 2))
+            .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).stroke(theme.primary, lineWidth: 2))
             .overlay(alignment: .topTrailing) {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")

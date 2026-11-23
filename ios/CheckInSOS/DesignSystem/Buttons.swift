@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Full-width filled teal button, at least 56 pt high.
+/// Full-width filled button in the flow's role colour, at least 56 pt high.
 struct PrimaryButtonStyle: ButtonStyle {
+    @Environment(\.roleTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -11,8 +12,8 @@ struct PrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, Theme.spacing)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: Theme.primaryButtonHeight)
-            .foregroundStyle(isEnabled ? Theme.onPrimary : Theme.disabledText)
-            .background(isEnabled ? Theme.primary : Theme.disabledBackground,
+            .foregroundStyle(isEnabled ? theme.onPrimary : Theme.disabledText)
+            .background(isEnabled ? theme.primary : Theme.disabledBackground,
                         in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
             .opacity(configuration.isPressed ? 0.85 : 1)
             .contentShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
@@ -22,6 +23,7 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 /// Full-width outlined button for the secondary choice.
 struct SecondaryButtonStyle: ButtonStyle {
+    @Environment(\.roleTheme) private var theme
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
@@ -29,9 +31,9 @@ struct SecondaryButtonStyle: ButtonStyle {
             .padding(.horizontal, Theme.spacing)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: Theme.primaryButtonHeight)
-            .foregroundStyle(Theme.primary)
-            .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
-            .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).stroke(Theme.primary, lineWidth: 2))
+            .foregroundStyle(theme.primary)
+            .background(theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.cornerRadius).stroke(theme.primary, lineWidth: 2))
             .opacity(configuration.isPressed ? 0.85 : 1)
             .contentShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
             .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, pressed in pressed }

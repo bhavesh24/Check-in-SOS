@@ -12,7 +12,7 @@ struct CareStepView: View {
         } actions: {
             ForEach(viewModel.step.answers, id: \.self) { answer in
                 Button(answer.title) { Task { await viewModel.choose(answer) } }
-                    .buttonStyle(AnswerButtonStyle(isPrimary: answer.title == "Yes"))
+                    .answerStyle(isPrimary: answer.title == "Yes")
                     .disabled(viewModel.isBusy)
                     .accessibilityIdentifier(answer.testID)
             }
@@ -23,15 +23,15 @@ struct CareStepView: View {
 }
 
 /// "Yes" is the filled primary button, as on Escalate and Alive; other answers are outlined.
-private struct AnswerButtonStyle: ButtonStyle {
-    let isPrimary: Bool
-
+/// The styles are applied with `.buttonStyle` (not by calling `makeBody` directly) so they get the
+/// environment: the flow's `roleTheme` and `isEnabled`.
+private extension View {
     @ViewBuilder
-    func makeBody(configuration: Configuration) -> some View {
+    func answerStyle(isPrimary: Bool) -> some View {
         if isPrimary {
-            PrimaryButtonStyle().makeBody(configuration: configuration)
+            buttonStyle(.primary)
         } else {
-            SecondaryButtonStyle().makeBody(configuration: configuration)
+            buttonStyle(.secondary)
         }
     }
 }

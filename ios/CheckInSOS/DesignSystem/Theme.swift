@@ -4,10 +4,7 @@ import UIKit
 
 /// Design tokens from docs/screens.md. The teal is darkened so white text passes WCAG AA (5.5:1).
 enum Theme {
-    static let primary = Color(light: 0x0F766E, dark: 0x2DD4BF)
-    static let onPrimary = Color(light: 0xFFFFFF, dark: 0x042F2E)
     static let background = Color(light: 0xFFFFFF, dark: 0x0B1214)
-    static let surfaceTint = Color(light: 0xF0FDFA, dark: 0x132326)
     static let text = Color(light: 0x101828, dark: 0xF2F4F7)
     static let secondaryText = Color(light: 0x475467, dark: 0xD0D5DD)
     static let disabledBackground = Color(light: 0xE4E7EC, dark: 0x344054)
@@ -26,14 +23,7 @@ enum Theme {
     static let spacing: CGFloat = 16
 
     /// Icon badge colour for each role on Home. `onRole` passes 4.5:1 on all of them.
-    static func color(for role: Role) -> Color {
-        switch role {
-        case .olderAdult: primary
-        case .family: Color(light: 0x6941C6, dark: 0xB692F6)
-        case .hospital: Color(light: 0x175CD3, dark: 0x84ADFF)
-        case .neighbour: Color(light: 0xB93815, dark: 0xF38744)
-        }
-    }
+    static func color(for role: Role) -> Color { RoleTheme.forRole(role).primary }
 
     /// Score ring colour: green when good, then reds that deepen as the score drops. All ≥3:1 on `background`.
     static func color(for band: ScoreBand) -> Color {
@@ -51,6 +41,59 @@ enum Theme {
         case .warning: statusWarning
         case .ok: statusOk
         }
+    }
+}
+
+/// A light/dark hex pair, kept raw so tests can check contrast.
+struct HexPair: Equatable, Sendable {
+    let light: UInt32
+    let dark: UInt32
+
+    var color: Color { Color(light: light, dark: dark) }
+}
+
+/// The accent colours of one flow: every screen after a Home card is themed in that card's role colour
+/// (docs/screens.md, "Flow themes"). Components read it with `@Environment(\.roleTheme)`.
+struct RoleTheme: Equatable, Sendable {
+    let primaryHex: HexPair
+    let onPrimaryHex: HexPair
+    let surfaceTintHex: HexPair
+
+    var primary: Color { primaryHex.color }
+    var onPrimary: Color { onPrimaryHex.color }
+    var surfaceTint: Color { surfaceTintHex.color }
+
+    static func forRole(_ role: Role) -> RoleTheme {
+        switch role {
+        case .olderAdult:
+            RoleTheme(primaryHex: HexPair(light: 0x0F766E, dark: 0x2DD4BF),
+                      onPrimaryHex: HexPair(light: 0xFFFFFF, dark: 0x042F2E),
+                      surfaceTintHex: HexPair(light: 0xF0FDFA, dark: 0x132326))
+        case .family:
+            RoleTheme(primaryHex: HexPair(light: 0x6941C6, dark: 0xB692F6),
+                      onPrimaryHex: onRole, surfaceTintHex: HexPair(light: 0xF4F3FF, dark: 0x1C1830))
+        case .hospital:
+            RoleTheme(primaryHex: HexPair(light: 0x175CD3, dark: 0x84ADFF),
+                      onPrimaryHex: onRole, surfaceTintHex: HexPair(light: 0xEFF8FF, dark: 0x111C2E))
+        case .neighbour:
+            RoleTheme(primaryHex: HexPair(light: 0xB93815, dark: 0xF38744),
+                      onPrimaryHex: onRole, surfaceTintHex: HexPair(light: 0xFEF6EE, dark: 0x2A1A12))
+        }
+    }
+
+    private static let onRole = HexPair(light: 0xFFFFFF, dark: 0x0B1214)
+}
+
+extension EnvironmentValues {
+    /// Home and the older-adult flow use the teal default.
+    @Entry var roleTheme: RoleTheme = .forRole(.olderAdult)
+}
+
+extension View {
+    /// Themes this screen in `role`'s Home card colour (buttons, tiles, avatars, back button tint…).
+    func roleTheme(_ role: Role) -> some View {
+        let theme = RoleTheme.forRole(role)
+        return environment(\.roleTheme, theme).tint(theme.primary)
     }
 }
 

@@ -31,6 +31,9 @@ data class AppColors(
     val roleFamily: Color,
     val roleHospital: Color,
     val roleNeighbour: Color,
+    val tintFamily: Color,
+    val tintHospital: Color,
+    val tintNeighbour: Color,
     /** Icon colour on a role badge; passes 4.5:1 on every role colour. */
     val onRole: Color,
     val cardBorder: Color,
@@ -54,6 +57,17 @@ data class AppColors(
         Role.NEIGHBOUR -> roleNeighbour
     }
 
+    /**
+     * The colours of the flow started from [role]'s Home card: its role colour replaces `primary`,
+     * `onRole` replaces `onPrimary` and the role's tint replaces `surfaceTint` (docs/screens.md, "Flow themes").
+     */
+    fun forFlow(role: Role): AppColors = when (role) {
+        Role.OLDER_ADULT -> this
+        Role.FAMILY -> copy(primary = roleFamily, onPrimary = onRole, surfaceTint = tintFamily)
+        Role.HOSPITAL -> copy(primary = roleHospital, onPrimary = onRole, surfaceTint = tintHospital)
+        Role.NEIGHBOUR -> copy(primary = roleNeighbour, onPrimary = onRole, surfaceTint = tintNeighbour)
+    }
+
     fun forSeverity(severity: TimelineSeverity): Color = when (severity) {
         TimelineSeverity.CRITICAL -> statusCritical
         TimelineSeverity.WARNING -> statusWarning
@@ -67,6 +81,7 @@ val LightAppColors = AppColors(
     disabledBackground = Color(0xFFE4E7EC), disabledText = Color(0xFF475467),
     statusCritical = Color(0xFFB42318), statusWarning = Color(0xFFB54708), statusOk = Color(0xFF067647),
     roleFamily = Color(0xFF6941C6), roleHospital = Color(0xFF175CD3), roleNeighbour = Color(0xFFB93815),
+    tintFamily = Color(0xFFF4F3FF), tintHospital = Color(0xFFEFF8FF), tintNeighbour = Color(0xFFFEF6EE),
     onRole = Color(0xFFFFFFFF), cardBorder = Color(0xFFE4E7EC),
     scoreMild = Color(0xFFF04438), scoreModerate = Color(0xFFD92D20), scoreSevere = Color(0xFF912018),
 )
@@ -77,6 +92,7 @@ val DarkAppColors = AppColors(
     disabledBackground = Color(0xFF344054), disabledText = Color(0xFFD0D5DD),
     statusCritical = Color(0xFFF97066), statusWarning = Color(0xFFFDB022), statusOk = Color(0xFF47CD89),
     roleFamily = Color(0xFFB692F6), roleHospital = Color(0xFF84ADFF), roleNeighbour = Color(0xFFF38744),
+    tintFamily = Color(0xFF1C1830), tintHospital = Color(0xFF111C2E), tintNeighbour = Color(0xFF2A1A12),
     onRole = Color(0xFF0B1214), cardBorder = Color(0xFF344054),
     scoreMild = Color(0xFFFDA29B), scoreModerate = Color(0xFFF97066), scoreSevere = Color(0xFFF04438),
 )
@@ -101,7 +117,18 @@ object AppTheme {
 
 @Composable
 fun CheckInTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) DarkAppColors else LightAppColors
+    AppColorsTheme(if (darkTheme) DarkAppColors else LightAppColors, darkTheme, content)
+}
+
+/** Themes [content] in [role]'s Home card colour: buttons, tiles, avatars, back icon, cursor, list panels. */
+@Composable
+fun RoleTheme(role: Role, content: @Composable () -> Unit) {
+    val colors = LocalAppColors.current
+    AppColorsTheme(colors.forFlow(role), darkTheme = colors.background == DarkAppColors.background, content)
+}
+
+@Composable
+private fun AppColorsTheme(colors: AppColors, darkTheme: Boolean, content: @Composable () -> Unit) {
     val base = if (darkTheme) darkColorScheme() else lightColorScheme()
     val scheme = base.copy(
         primary = colors.primary, onPrimary = colors.onPrimary, background = colors.background,

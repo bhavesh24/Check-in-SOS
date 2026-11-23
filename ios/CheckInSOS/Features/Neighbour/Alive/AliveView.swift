@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AliveView: View {
+    @Environment(\.roleTheme) private var theme
     @State var viewModel: AliveViewModel
 
     var body: some View {
@@ -11,7 +12,7 @@ struct AliveView: View {
                     .foregroundStyle(Theme.statusWarning)
                     .padding(Theme.spacing)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    .background(theme.surfaceTint, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("emergency.demoMessage")
             }

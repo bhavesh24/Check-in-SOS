@@ -48,6 +48,7 @@ Rules:
   - Test mode uses fresh mock data and `FixedTimeProvider(fixedNow)`. On iOS that's the `-ui-testing` launch argument; on Android it's a test `AppContainer`.
 - **UI conventions:** every interactive element gets the test ID listed in `docs/screens.md`, via `accessibilityIdentifier` on iOS and `Modifier.testTag` on Android.
   - UI tests use robot (page-object) helpers.
+  - Flow themes: each flow takes its Home card's role colour (`docs/screens.md`, "Flow themes"). iOS applies `.roleTheme(route.role)` in `RootView` and components read `@Environment(\.roleTheme)`; Android wraps each destination in `RoleTheme(role)` (`themed<Route>(role)` in `AppNavHost`) and components read `AppTheme.colors`. Never use a static teal `primary` in a component.
   - The 999/111 buttons must **never** dial; they show "Demo: would call 999" instead.
   - iOS XCUITest gotchas, all handled in `CheckInSOSUITests/Robots/Robot.swift`:
     - Choices hidden under the pinned action bar must be scrolled clear first (`tapAboveBar`).
@@ -99,9 +100,9 @@ python3 scripts/check_ios_coverage.py ios/build/All.xcresult 80
   - `#Preview` / `@Preview` (plus the `Previews/` folder on iOS and the `uk.checkinsos.app.previews` package on Android).
   - Test fakes.
   - Every addition must be documented in the README ("Coverage exclusions" table).
-- Current status: iOS overall 99.4% and UI-only presentation 98.7%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
-- Android test counts: 35 ViewModel tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), 3 JVM-only landscape/rotation tests, plus the domain and data tests.
-- iOS test counts: 37 ViewModel tests, 27 domain, 7 data, and 26 XCUITests (6 of them run `performAccessibilityAudit()`, 3 run in landscape).
+- Current status: iOS overall 98.6% and UI-only presentation 98.4%; Android overall (domain + data + app) 99.7% and UI-only presentation (emulator) 97.4%.
+- Android test counts: 35 ViewModel tests, 3 flow-theme tests, 12 Robolectric screen tests and 20 shared flows (run on both the JVM and the emulator, with ATF), 3 JVM-only landscape/rotation tests, plus the domain and data tests.
+- iOS test counts: 37 ViewModel tests, 3 flow-theme tests, 27 domain, 7 data, and 26 XCUITests (6 of them run `performAccessibilityAudit()`, 3 run in landscape).
 
 ## Status
 - [x] **Phase 1, foundation:**

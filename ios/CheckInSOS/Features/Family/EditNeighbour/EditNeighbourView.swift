@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditNeighbourView: View {
+    @Environment(\.roleTheme) private var theme
     @State var viewModel: EditNeighbourViewModel
     @FocusState private var focusedField: String?
 
@@ -28,7 +29,7 @@ struct EditNeighbourView: View {
                         .foregroundStyle(Theme.text)
                         .padding(.horizontal, 12)
                         .frame(minHeight: Theme.minTouchTarget)
-                        .background(Theme.surfaceTint, in: RoundedRectangle(cornerRadius: 10))
+                        .background(theme.surfaceTint, in: RoundedRectangle(cornerRadius: 10))
                         .accessibilityLabel("Country code plus 44")
                     input("Mobile", text: $viewModel.mobile, id: "editNeighbour.mobile")
                         .keyboardType(.phonePad)

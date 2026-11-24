@@ -27,3 +27,23 @@ import SwiftUI
         .padding()
     }
 }
+
+#Preview("Flow themes") {
+    ScrollView {
+        VStack(spacing: 24) {
+            ForEach(Role.allCases, id: \.self) { role in
+                VStack(spacing: 12) {
+                    StepProgress(step: 1, total: 2)
+                    ChoiceGrid(items: ["Good", "Ill"]) { title in
+                        ChoiceTile(title: title, systemImage: "star.fill", isSelected: title == "Good") {}
+                    }
+                    PersonRow(name: "Margaret Wilson", score: 76)
+                    Button("Primary") {}.buttonStyle(.primary)
+                    Button("Secondary") {}.buttonStyle(.secondary)
+                }
+                .roleTheme(role)
+            }
+        }
+        .padding()
+    }
+}

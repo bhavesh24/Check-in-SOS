@@ -24,7 +24,8 @@ Both apps show the same copy, mock data, test IDs and behaviour. The single sour
 | Hospital | Patients → *Simulate alert* → Help → In care? → Recovering? → Recovered? / Bad condition? → Is the patient alive? |
 
 Every screen has a back control. Multi-step flows show
-"Step N of M". The teal theme is darkened to pass WCAG AA, touch targets are at least 48 pt/dp, text
+"Step N of M". Each flow is themed in the colour of the Home card that starts it (teal, purple, blue or
+orange), and every theme passes WCAG AA, touch targets are at least 48 pt/dp, text
 scales with the system font size, and dark mode is supported.
 
 ### What is mocked

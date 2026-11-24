@@ -11,7 +11,21 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 - Answer buttons: "Yes" (or the "Yes, …" choice) is the filled primary button, and other answers are outlined. Answers keep the order listed per screen.
 - Platform-only test IDs: `screen.title` is the Android top-app-bar title (iOS tests read the navigation bar), `keyboard.done` is the iOS keyboard toolbar button (Android uses the IME action), and `actionBar` is the iOS pinned action bar container (used by the landscape audit).
 - Multi-step flows show a step indicator "Step N of M" (test ID `stepProgress`). Step counts are listed per flow below.
-- Theme: teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
+- Theme: Home is teal, **darkened** so white-on-teal passes WCAG AA (≥4.5:1). Touch targets ≥ 48×48 pt/dp; primary buttons ≥ 56 high, full width.
+- **Flow themes:** every screen after Home is themed in the colour of the Home card that starts its flow. The role colour
+  replaces `primary`, `onRole` replaces `onPrimary` (older adult keeps `onPrimary`), and the role tint replaces `surfaceTint`.
+  This covers buttons, answer tiles, the step bar, avatars, the score numeral, the trend line, the back control, links and
+  list panels. Status colours, score-band colours and the urgent banner don't change. Each role's `primary` is ≥4.5:1 on
+  `background` and on its tint, and its `onPrimary` is ≥4.5:1 on `primary`, in light and dark.
+
+  | Flow (Home card) | Colour | Screens |
+  |---|---|---|
+  | Old age adult | `roleOlderAdult` (teal) | Assessment, Score, No check-in |
+  | Concerned family | `roleFamily` (purple) | Loved ones, Current status, Edit neighbour, Timeline |
+  | Neighbour | `roleNeighbour` (orange) | Neighbours, Help alert for a neighbour, Reached, Escalate, Alive |
+  | Hospital | `roleHospital` (blue) | Patients, Help alert for a hospital, the five care steps |
+
+  The shared Help alert screen takes its flow from the alert's recipient.
 - Text scales with Dynamic Type (iOS) / font scale (Android); no fixed-height text containers.
 - Orientation: both apps support all four orientations: portrait, upside-down portrait and landscape left/right (Android `fullUser`, so the user's rotation lock is respected). iPhones with Face ID never rotate upside-down (an iOS restriction), so there it only applies to Home-button iPhones. At short landscape heights content scrolls under the pinned action bar rather than clipping.
 - Push notifications are **simulated** by a "Simulate alert" button. 999/111 **never dials** in this build.
@@ -30,7 +44,7 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 ## Design tokens
 | Token | Light | Dark | Notes |
 |---|---|---|---|
-| `primary` (buttons, titles) | `#0F766E` | `#2DD4BF` | white on `#0F766E` = 5.5:1 (AA). Dark mode uses `onPrimary #042F2E` |
+| `primary` (buttons, titles; Home and the older-adult flow, other flows use their role colour) | `#0F766E` | `#2DD4BF` | white on `#0F766E` = 5.5:1 (AA). Dark mode uses `onPrimary #042F2E` |
 | `onPrimary` | `#FFFFFF` | `#042F2E` | |
 | `background` | `#FFFFFF` | `#0B1214` | |
 | `surfaceTint` (list rows) | `#F0FDFA` | `#132326` | |
@@ -38,11 +52,14 @@ empanelment code, family registration wizard + "All Done!" confirmation. The rol
 | `statusWarning` (amber) | `#B54708` | `#FDB022` | timeline: acknowledged, in hospital care |
 | `statusOk` (green) | `#067647` | `#47CD89` | timeline: neighbour reached, recovered, alive, all OK |
 | Score numeral | 72 pt/sp, primary | | rendered as `76/` newline `100` like the prototype (Current status) |
-| `roleOlderAdult` | `#0F766E` | `#2DD4BF` | Home card icon badge (same as `primary`) |
-| `roleFamily` | `#6941C6` | `#B692F6` | Home card icon badge |
-| `roleHospital` | `#175CD3` | `#84ADFF` | Home card icon badge |
-| `roleNeighbour` | `#B93815` | `#F38744` | Home card icon badge |
+| `roleOlderAdult` | `#0F766E` | `#2DD4BF` | Home card icon badge and flow theme (same as `primary`) |
+| `roleFamily` | `#6941C6` | `#B692F6` | Home card icon badge and flow theme |
+| `roleHospital` | `#175CD3` | `#84ADFF` | Home card icon badge and flow theme |
+| `roleNeighbour` | `#B93815` | `#F38744` | Home card icon badge and flow theme |
 | `onRole` | `#FFFFFF` | `#0B1214` | icon on a role badge (≥4.5:1 on every role colour) |
+| `tintFamily` | `#F4F3FF` | `#1C1830` | `surfaceTint` in the family flow |
+| `tintHospital` | `#EFF8FF` | `#111C2E` | `surfaceTint` in the hospital flow |
+| `tintNeighbour` | `#FEF6EE` | `#2A1A12` | `surfaceTint` in the neighbour flow |
 | `cardBorder` | `#E4E7EC` | `#344054` | 1 pt/dp outline of Home cards |
 | `scoreMild` (50–69) | `#F04438` | `#FDA29B` | Score ring, lightest red |
 | `scoreModerate` (30–49) | `#D92D20` | `#F97066` | Score ring |

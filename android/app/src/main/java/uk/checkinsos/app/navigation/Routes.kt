@@ -31,6 +31,10 @@ object Routes {
 
         val alert: AlertSummary
             get() = AlertSummary(alertId, subjectName, AlertRecipient.valueOf(recipient), Instant.ofEpochMilli(acknowledgeByMillis))
+
+        /** The flow this alert belongs to, which sets the screen's theme. */
+        val role: Role
+            get() = if (AlertRecipient.valueOf(recipient) == AlertRecipient.NEIGHBOUR) Role.NEIGHBOUR else Role.HOSPITAL
     }
 
     @Serializable

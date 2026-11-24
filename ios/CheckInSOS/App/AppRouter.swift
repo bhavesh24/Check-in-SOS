@@ -25,6 +25,18 @@ enum Route: Hashable {
     case careStep(CareStep, AlertSummary)
 }
 
+extension Route {
+    /// The Home card this screen's flow started from; the screen is themed in its colour.
+    var role: Role {
+        switch self {
+        case .assessment, .score, .noCheckIn: .olderAdult
+        case .lovedOnes, .status, .editNeighbour, .timeline: .family
+        case .neighbours, .neighbourAlert, .reached, .escalate, .alive: .neighbour
+        case .patients, .hospitalAlert, .careStep: .hospital
+        }
+    }
+}
+
 /// Owns the navigation path. ViewModels never see it: they report outcomes through closures that
 /// `RootView` maps onto these methods.
 @MainActor @Observable
@@ -60,11 +72,15 @@ struct RootView: View {
             HomeView(viewModel: container.makeHome { [router] in router.push(AppRouter.route(for: $0)) })
                 .navigationDestination(for: Route.self, destination: destination)
         }
-        .tint(Theme.primary)
+        .tint(RoleTheme.forRole(.olderAdult).primary)
+    }
+
+    private func destination(_ route: Route) -> some View {
+        screen(route).roleTheme(route.role)
     }
 
     @ViewBuilder
-    private func destination(_ route: Route) -> some View {
+    private func screen(_ route: Route) -> some View {
         let router = router
         switch route {
         case .assessment:
